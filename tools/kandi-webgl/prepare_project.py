@@ -49,7 +49,16 @@ def build(repo: Path, dest: Path) -> Path:
     source_dir = dest / "Assets" / "KandiBoomSource"
     source_dir.mkdir(parents=True)
     shutil.copy2(HERE / "asset-lock.json", source_dir / "asset-lock.json")
-    package_deps = {"com.unity.render-pipelines.universal": URP_VERSION}
+    # Explicitly enable built-in modules used by DanceFlow runtime assemblies.
+    # This generated Unity project starts with no default built-in modules; without
+    # these entries Unity reports CS1069 for AudioSource, ParticleSystem and
+    # UnityEngine.Animations types before the WebGL build method can run.
+    package_deps = {
+        "com.unity.render-pipelines.universal": URP_VERSION,
+        "com.unity.modules.audio": "1.0.0",
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.particlesystem": "1.0.0",
+    }
     (dest / "Packages" / "manifest.json").write_text(
         json.dumps({"dependencies": package_deps}, indent=2) + "\n", encoding="utf-8")
     settings = dest / "ProjectSettings"

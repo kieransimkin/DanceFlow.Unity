@@ -105,7 +105,15 @@ class ProjectAndDeployTests(unittest.TestCase):
             lock = json.loads((output / "Assets" / "KandiBoomSource" / "asset-lock.json").read_text())
             self.assertEqual(lock["character"], "Kandi Boom")
             manifest = json.loads((output / "Packages" / "manifest.json").read_text())
-            self.assertIn("com.unity.render-pipelines.universal", manifest["dependencies"])
+            self.assertEqual(manifest["dependencies"]["com.unity.render-pipelines.universal"],
+                             prepare_project.URP_VERSION)
+            # Keep the generated CI project capable of compiling the runtime.
+            for module in ("audio", "animation", "particlesystem"):
+                with self.subTest(module=module):
+                    self.assertEqual(
+                        manifest["dependencies"][f"com.unity.modules.{module}"],
+                        "1.0.0",
+                    )
             with self.assertRaises(FileExistsError):
                 prepare_project.build(source, output)
 
