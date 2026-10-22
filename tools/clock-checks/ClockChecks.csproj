@@ -19,5 +19,6 @@
     <Compile Include="../../Runtime/Clock/MusicalScheduler.cs" />
     <Compile Include="../../Runtime/Clock/SourceCueScheduler.cs" />
     <Compile Include="../../Runtime/GPU/ShaderClockMath.cs" />
+    <Compile Include="../../Runtime/Performance/FrameSeriesStats.cs" />
   </ItemGroup>
 </Project>

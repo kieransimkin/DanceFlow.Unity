@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json.Nodes;
 using DanceFlow.Unity.Clock;
 using DanceFlow.Unity.GPU;
+using DanceFlow.Unity.Performance;
 
 internal static class Program
 {
@@ -161,6 +162,16 @@ internal static class Program
         }
         Fails(() => ShaderClockMath.CyclePhase(42, 257), "GPU cycle period bound");
         Fails(() => ShaderClockMath.SplitCounter(1L << 45, out _, out _), "GPU high integer overflow guard");
-        Console.WriteLine($"DanceFlow Phases 1–2 clock/shader checks passed ({_passed} assertions).");
+        var perf = FrameSeriesStats.Calculate(new double[] { 30, 0, 40, 10, 20 }, 5);
+        Expect(perf.Count == 5, "Benchmark percentile valid count");
+        Close(perf.Mean, 20, "Benchmark mean");
+        Close(perf.P50, 20, "Benchmark p50");
+        Close(perf.P95, 38, "Benchmark type 7 p95");
+        Close(perf.P99, 39.6, "Benchmark type 7 p99");
+        Expect(FrameSeriesStats.Calculate(Array.Empty<double>(), 0).Count == 0,
+            "Unavailable timing is not silently filled with zero observations");
+        Fails(() => FrameSeriesStats.Calculate(new double[] { double.NaN }, 1),
+            "Non-finite frame timings fail closed");
+        Console.WriteLine($"DanceFlow Phases 1–2 clock/shader/benchmark checks passed ({_passed} assertions).");
     }
 }

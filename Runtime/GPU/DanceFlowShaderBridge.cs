@@ -55,6 +55,15 @@ namespace DanceFlow.Unity.GPU
 
         public ShaderClockSample LastSample => _lastSample;
 
+        /// <summary>Opt-in benchmark timing; publication otherwise runs without a Stopwatch.</summary>
+        public void SetBenchmarkPublisherTiming(bool enabled)
+        {
+            measurePublisherCpuTime = enabled;
+            _publisherTotalMicroseconds = _publisherPeakMicroseconds = _publisherLastMicroseconds = 0;
+            _publisherMeasuredCount = 0;
+        }
+
+
         private static readonly int BpmId = Shader.PropertyToID("_DanceFlow_BPM");
         private static readonly int BeatPhaseId = Shader.PropertyToID("_DanceFlow_BeatPhase");
         private static readonly int BarPhaseId = Shader.PropertyToID("_DanceFlow_BarPhase");

@@ -17,3 +17,8 @@ Cache/
 !tools/clock-checks/ClockChecks.csproj
 **/bin/
 **/obj/
+
+# Runtime performance artifacts and Python analysis bytecode
+bench-results/
+__pycache__/
+*.pyc

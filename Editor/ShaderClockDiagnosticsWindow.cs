@@ -9,6 +9,7 @@ namespace DanceFlow.Unity.Editor
         private DanceFlowShaderBridge _bridge;
         private DanceFlowShaderMetrics _metrics;
         private double _seekSeconds;
+        private DanceFlowShaderMetrics.MetricsReport _lastReport;
 
         [MenuItem("Window/DanceFlow/Shader Clock Diagnostics")]
         public static void Open() => GetWindow<ShaderClockDiagnosticsWindow>("Shader Clock");
@@ -54,6 +55,30 @@ namespace DanceFlow.Unity.Editor
                     _metrics.MeanCpuFrameMs.ToString("F3") + " ms" : "unavailable");
                 EditorGUILayout.LabelField("GPU frame", _metrics.HasGpuTiming ?
                     _metrics.MeanGpuFrameMs.ToString("F3") + " ms" : "unavailable");
+                EditorGUILayout.LabelField("Capture state", _metrics.IsCapturing ? "recording" : "stopped");
+                EditorGUILayout.LabelField("Frame observations", _metrics.SamplesTaken.ToString());
+                EditorGUILayout.LabelField("GC allocated/frame", _metrics.HasGcAllocationCounter ?
+                    _metrics.LastGcAllocatedBytes + " bytes" : "unavailable");
+                EditorGUILayout.LabelField("Video used (Unity estimate)", _metrics.HasVideoMemoryEstimate ?
+                    (_metrics.LastVideoUsedBytes / 1048576.0).ToString("F2") + " MiB" : "unavailable");
+                EditorGUILayout.LabelField("Reserved memory", _metrics.HasReservedMemoryCounter ?
+                    (_metrics.LastReservedBytes / 1048576.0).ToString("F2") + " MiB" : "unavailable");
+                using (new EditorGUI.DisabledScope(!Application.isPlaying))
+                {
+                    if (!_metrics.IsCapturing && GUILayout.Button("Start opt-in detailed capture"))
+                        _metrics.BeginCapture("manual", "editor-manual", resourceCounters: true);
+                    if (_metrics.IsCapturing && GUILayout.Button("Stop capture")) _metrics.StopCapture();
+                    if (GUILayout.Button("Calculate percentiles")) _lastReport = _metrics.GetReport();
+                }
+                if (_lastReport != null)
+                {
+                    EditorGUILayout.LabelField("CPU p95", _lastReport.cpuFrameMs.count > 0 ?
+                        _lastReport.cpuFrameMs.p95.ToString("F3") + " ms" : "unavailable");
+                    EditorGUILayout.LabelField("GPU p95", _lastReport.gpuFrameMs.count > 0 ?
+                        _lastReport.gpuFrameMs.p95.ToString("F3") + " ms" : "unavailable");
+                    EditorGUILayout.LabelField("GC p95", _lastReport.gcAllocatedBytes.count > 0 ?
+                        _lastReport.gcAllocatedBytes.p95.ToString("F1") + " bytes" : "unavailable");
+                }
                 if (GUILayout.Button("Export metrics JSON (explicit)"))
                 {
                     var path = EditorUtility.SaveFilePanel("Export DanceFlow shader metrics", "", "shader-metrics.json", "json");

@@ -1,6 +1,9 @@
 # Changelog
 
 ## 0.3.0 (unreleased) — Phase 2 shader clock implementation
+- Extended opt-in profiling with bounded raw observations, percentile summaries, GC/Unity video-memory counters and unavailable-value reporting.
+- Added a generated URP benchmark scene, six paired A/B/C/D/M scenarios, real GPU readback acceptance test, hardware runner scripts, Python analysis and manual GPU CI workflow.
+- Performance evidence is still pending real Unity Editor and GPU execution; synthetic analyser tests are not performance measurements.
 - Added authoritative render-frame global shader bridge and deterministic Editor/offline publishing.
 - Added float-precision-safe C# encoding, HLSL helpers and Shader Graph File-mode custom functions.
 - Added opt-in URP vertex/fragment demo generator, shader diagnostics and bounded opt-in performance observations.

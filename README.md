@@ -53,3 +53,7 @@ Add `DanceFlowShaderBridge` alongside the Phase 1 `DanceFlowClockBehaviour` and 
 Import the optional **Shader Clock (URP)** sample and choose **Tools > DanceFlow > Create URP Shader Clock Demo Scene** for a working vertex and fragment shader demo (generated within the Unity Editor). For opt-in frame/CPU/resource metrics use `DanceFlowShaderMetrics` and **Window > DanceFlow > Shader Clock Diagnostics**. The metrics report honestly distinguishes timings, graphics memory allocations and unavailable utilisation counters.
 
 `python tools/shader-checks/check_shader_contract.py` performs static shader API, fixture and GUID validation. This does **not** compile Unity shaders. Licensed Unity Test Runner, URP GPU rendering and hardware benchmark results are still required for release acceptance. See [03-shader-api.md](docs/03-shader-api.md) for details and caveats.
+
+## Real GPU acceptance and resource benchmarks
+
+The new opt-in `DanceFlowShaderMetrics` capture adds per-frame CPU/GPU/GC/video-memory observations, type-7 p50/p95/p99 summaries, and explicit *unavailable* counters. For reproducible same-device A/B/C/D/M benchmark runs, generated URP scenes, Unity Player build scripts, independent Python analysis, and a real GPU readback test, use **[Phase 2 benchmarking and acceptance](docs/05-benchmarking.md)**. These are tools, not claims of verified GPU performance; actual Unity Editor/device runs and a licensed hardware runner remain necessary.

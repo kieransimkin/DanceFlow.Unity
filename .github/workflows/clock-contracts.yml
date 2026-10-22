@@ -19,6 +19,8 @@ jobs:
         run: dotnet run --project tools/clock-checks/ClockChecks.csproj --configuration Release
       - name: Validate Phase 2 shader API and golden fixtures (no Unity licence needed)
         run: python tools/shader-checks/check_shader_contract.py
+      - name: Test benchmark comparison, missing-counter handling and schema
+        run: python -m unittest discover -s tools/benchmarks/tests -v
       - name: Validate package metadata and source fixture
         run: |
           python -m json.tool package.json >/dev/null

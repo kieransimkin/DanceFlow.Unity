@@ -1,0 +1,84 @@
+name: Hardware shader benchmarking (opt-in licensed GPU runner)
+on:
+  workflow_dispatch:
+    inputs:
+      repeats:
+        description: "Paired repeats per scenario"
+        required: true
+        default: '3'
+        type: string
+      objects:
+        description: "Rendered spheres per scene"
+        required: true
+        default: '1024'
+        type: string
+permissions:
+  contents: read
+jobs:
+  hardware:
+    # Dedicated GPU runner with locally activated Unity 6 and a real, pinned URP project.
+    # Never run GPU acceptance with -nographics on an ordinary hosted CI VM.
+    runs-on: [self-hosted, windows, gpu]
+    timeout-minutes: 180
+    environment: hardware-benchmark
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate required locally installed graphics test environment
+        shell: pwsh
+        run: |
+          if (-not $env:DANCEFLOW_UNITY_EDITOR -or -not $env:DANCEFLOW_UNITY_PROJECT) {
+            throw 'Configure DANCEFLOW_UNITY_EDITOR and DANCEFLOW_UNITY_PROJECT on this GPU runner.'
+          }
+          if (!(Test-Path $env:DANCEFLOW_UNITY_EDITOR) -or !(Test-Path $env:DANCEFLOW_UNITY_PROJECT)) {
+            throw 'Configured Unity 6 editor / URP project paths are inaccessible.'
+          }
+      - name: Install checked-out UPM into local fixture project
+        shell: pwsh
+        run: |
+          $dst = Join-Path $env:DANCEFLOW_UNITY_PROJECT 'Packages/com.kieransimkin.danceflow.unity'
+          if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path $dst | Out-Null
+          robocopy "$env:GITHUB_WORKSPACE" "$dst" /E /XD .git .github Library Build bench-results /XF *.zip *.patch
+          if ($LASTEXITCODE -ge 8) { throw 'Failed to copy Unity package to fixture project.' }
+          $sampleDst = Join-Path $env:DANCEFLOW_UNITY_PROJECT 'Assets/DanceFlowShaderClockURP'
+          if (Test-Path $sampleDst) { Remove-Item $sampleDst -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path $sampleDst | Out-Null
+          robocopy "$env:GITHUB_WORKSPACE\Samples~\ShaderClockURP" "$sampleDst" /E
+          if ($LASTEXITCODE -ge 8) { throw 'Failed to import URP shader sample into fixture project.' }
+          $manifestPath = Join-Path $env:DANCEFLOW_UNITY_PROJECT 'Packages/manifest.json'
+          $manifest = Get-Content -Raw $manifestPath | ConvertFrom-Json
+          $testables = @($manifest.testables) + @('com.kieransimkin.danceflow.unity') | Where-Object { $_ } | Select-Object -Unique
+          if ($manifest.PSObject.Properties.Name -contains 'testables') {
+            $manifest.testables = @($testables)
+          } else {
+            $manifest | Add-Member -NotePropertyName 'testables' -NotePropertyValue @($testables)
+          }
+          $manifest | ConvertTo-Json -Depth 64 | Set-Content -Encoding UTF8 $manifestPath
+          exit 0
+      - name: Execute actual URP GPU readback tests (inconclusive is a failure)
+        shell: pwsh
+        run: |
+          & ./tools/benchmarks/Run-GpuReadbackTests.ps1 -UnityEditorPath $env:DANCEFLOW_UNITY_EDITOR -ProjectPath $env:DANCEFLOW_UNITY_PROJECT -OutputDirectory ./bench-results
+      - name: Build real Player (with URP, frame timing enabled)
+        shell: pwsh
+        run: |
+          & ./tools/benchmarks/Build-BenchmarkPlayer.ps1 -UnityEditorPath $env:DANCEFLOW_UNITY_EDITOR -ProjectPath $env:DANCEFLOW_UNITY_PROJECT
+      - name: Run paired baseline and instrumented scenarios on graphics hardware
+        shell: pwsh
+        env:
+          REPEATS: ${{ inputs.repeats }}
+          OBJECTS: ${{ inputs.objects }}
+        run: |
+          $exe = Join-Path $env:DANCEFLOW_UNITY_PROJECT 'Build/DanceFlowBenchmark/DanceFlowBenchmark.exe'
+          & ./tools/benchmarks/Run-HardwareBenchmarks.ps1 -PlayerPath $exe -OutputDirectory ./bench-results -Repeats ([int]$env:REPEATS) -Objects ([int]$env:OBJECTS) -RequireGpu
+      - name: Upload raw reports and paired analysis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: danceflow-hardware-benchmarks
+          path: |
+            bench-results/**/*.json
+            bench-results/*.json
+            bench-results/*.xml
+            bench-results/*.log
+          if-no-files-found: warn
