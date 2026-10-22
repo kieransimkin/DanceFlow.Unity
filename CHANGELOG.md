@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 (work in progress, unreleased) — Phase 3 complete motion layer
+- Completed the Phase 3 recording subsystem with strict canonical DanceRudiments JSON import, lossless DFR1 float64 cache generation, exact/linear bounded sampling and explicit recording-to-master time mapping.
+- Added typed motion adapters for Transform local position, Light intensity, ParticleSystem emission and Renderer float/colour properties.
+- Added a global four-slot motion signal bus plus optional bounded GPU recording mirror and shader-side sampling helpers for render effects.
+- Added the Song Reactive Landscape showcase sample: procedural trees, grass, stars, terrain ripples, palette-shift and geometry-warp effects, with manifests/presets for StemLab example songs and Bass Ben & Friends' Star Lights Glow.
+- Added static showcase validation, runtime/editor tests and recording verification tools.
+- Unity Editor, GPU and hardware-run acceptance remain pending before final release sign-off.
+
 ## 0.3.0 (unreleased) — Phase 2 shader clock implementation
 - Finalisation: use a matched URP Unlit baseline rather than URP Lit, and ensure all benchmark objects have unique visible XY positions at high counts.
 - Restore VSync and target frame rate after a local benchmark session; add matching-shader static contract checks.

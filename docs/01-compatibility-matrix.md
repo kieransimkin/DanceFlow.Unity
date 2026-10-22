@@ -41,3 +41,26 @@ StemLab's canonical `phase_at_frame` uses exact rational arithmetic for integer 
 - Verify Unity 6 editor compilation and EditMode/PlayMode tests on a licensed Unity runner; the .NET console CI is not equivalent to a Unity Editor import test.
 - Source audio bytes must be supplied for SHA verification. A Unity `AudioClip` does not intrinsically preserve the original uploaded file bytes. Metadata provided by a caller cannot itself prove physical source identity without independently verified bytes.
 - For very large source frame indices, verify tolerance near sample-frame boundaries across host platforms. Do not claim unlimited sub-frame precision from IEEE 754 binary64.
+
+
+## Phase 3 recording reader (first implementation slice; 2026-10-22)
+
+Strict source format pinned to canonical DanceRudiments files:
+
+| Authority | Git blob SHA-1 |
+| --- | --- |
+| `DanceRudiments/docs/recordings.md` | `08864bf612cb4634664f440d0c83193456004bad` |
+| `DanceRudiments/python/dancerudiments_authoring/recording.py` | `63a829d7046fdebb1978ad1baf3bf24a2b1256f0` |
+| `DanceRudiments/include/dancerudiments/recording.hpp` | `624a4d5051d2d861eb20ed107663f23832297992` |
+| `DanceRudiments/tests/python/test_recording.py` | `dc8c6db9c690a132f4fe5679d15908397f784141` |
+
+The source schema remains `dancerudiments.recording` version 1 with exactly 64
+pips per quarter-note beat. The Unity binary cache DFR1 is a **separate,
+versioned private representation**, never a change to the canonical source JSON.
+
+A synthetic checked-in four-channel sample and SHA-256 receipt cover source
+BPM/phase provenance, signed start pip, 12-decimal float64 values, capture
+bounds and the exact rational authoring clock. A standalone C# harness additionally
+tests rejected malformed schemas, byte tampering, channel-order binding and
+captures crossing 65,535 pips. This does not replace native C++ playback or
+licensed Unity import/device acceptance; see [the Phase 3 specification](04-recording-format.md).

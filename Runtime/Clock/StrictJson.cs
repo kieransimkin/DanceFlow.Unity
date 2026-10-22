@@ -13,10 +13,15 @@ namespace DanceFlow.Unity.Clock
         private const int MaxDepth = 48;
         private StrictJson(string text) { _text = text; }
 
-        public static object Parse(string text)
+        public static object Parse(string text, int maxBytes = 32 * 1024 * 1024)
         {
-            if (text == null || Encoding.UTF8.GetByteCount(text) > 32 * 1024 * 1024)
-                throw new FormatException("Beat timeline JSON is missing or exceeds 32 MiB.");
+            if (maxBytes <= 0 || maxBytes > 64 * 1024 * 1024)
+                throw new ArgumentOutOfRangeException(nameof(maxBytes));
+            // Do the inexpensive UTF-16 character bound before counting UTF-8 bytes.
+            if (text == null || text.Length > maxBytes || Encoding.UTF8.GetByteCount(text) > maxBytes)
+                throw new FormatException(maxBytes == 32 * 1024 * 1024
+                    ? "Beat timeline JSON is missing or exceeds 32 MiB."
+                    : "Recording JSON is missing or exceeds 64 MiB.");
             var parser = new StrictJson(text);
             object result = parser.Read(0);
             parser.SkipWhitespace();

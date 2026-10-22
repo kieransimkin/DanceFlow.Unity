@@ -1,8 +1,8 @@
 {
   "name": "com.kieransimkin.danceflow.unity",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "displayName": "DanceFlow for Unity",
-  "description": "DanceFlow authoritative BPM clock, source-verified variable tempo, and Unity GPU shader clock bridge; recording and rigging modules planned.",
+  "description": "DanceFlow authoritative BPM clock, source-verified variable tempo, shader clock bridge, and complete DanceRudiments recording/motion playback for Unity; rigging planned.",
   "unity": "6000.0",
   "author": {
     "name": "Kieran Simkin",
@@ -27,6 +27,11 @@
       "displayName": "Shader Clock (URP)",
       "description": "Unity URP vertex deformation and fragment beat pulse with generated demonstration scene.",
       "path": "Samples~/ShaderClockURP"
+    },
+    {
+      "displayName": "Song Reactive Landscape",
+      "description": "Procedural landscape showcase with tree/grass wind, palette shifts and geometry warping driven by motion signals for StemLab example songs and Bass Ben & Friends presets.",
+      "path": "Samples~/SongReactiveLandscape"
     }
   ]
 }

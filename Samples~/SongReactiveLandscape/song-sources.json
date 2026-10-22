@@ -1,0 +1,65 @@
+{
+  "schema": "danceflow.unity.showcase-songs.v1",
+  "assets_bundled": false,
+  "notes": "Manifest names songs and references only; it contains no media or song-specific motion data.",
+  "songs": [
+    {
+      "id": "arcadians",
+      "title": "Arcadians",
+      "artist": "Kieran Simkin",
+      "source_project": "StemLab",
+      "local_audio_example": "examples/arcadians/Arcadians - 320kbps.mp3",
+      "bpm_hint": 145,
+      "bpm_status": "artist_documented",
+      "phase_status": "unverified_for_catalogue_matches",
+      "matched_rudiment_candidates": [
+        {"pattern": "groove_b_played", "reported_similarity": 0.739},
+        {"pattern": "groove_b_grid", "reported_similarity": 0.737},
+        {"pattern": "lfo_morph", "reported_similarity": 0.724}
+      ],
+      "recording_json_included": false,
+      "audio_included": false,
+      "reference": "https://github.com/kieransimkin/stemlab#measured-arcadians-benchmark"
+    },
+    {
+      "id": "the_truth_is_a_virus",
+      "title": "The Truth is a Virus",
+      "artist": "Kieran Simkin",
+      "source_project": "StemLab",
+      "local_audio_example": null,
+      "bpm_hint": 109.0013,
+      "bpm_status": "detector_grid_fit_not_confirmed",
+      "phase_status": "unverified",
+      "matched_rudiment_candidates": [],
+      "recording_json_included": false,
+      "audio_included": false,
+      "reference": "https://github.com/kieransimkin/stemlab"
+    },
+    {
+      "id": "star_lights_glow_mystery_liquid_kick",
+      "title": "Star Lights Glow (Mystery Liquid Kick)",
+      "artist": "Bass Ben & Friends",
+      "source_project": "External local track / optional StemLab analysis",
+      "local_audio_example": null,
+      "bpm_hint": null,
+      "bpm_status": "not_verified",
+      "phase_status": "not_verified",
+      "matched_rudiment_candidates": [],
+      "recording_json_included": false,
+      "audio_included": false
+    },
+    {
+      "id": "star_lights_glow_anthem",
+      "title": "Star Lights Glow (Anthem)",
+      "artist": "Bass Ben & Friends",
+      "source_project": "External local track / optional StemLab analysis",
+      "local_audio_example": null,
+      "bpm_hint": null,
+      "bpm_status": "not_verified",
+      "phase_status": "not_verified",
+      "matched_rudiment_candidates": [],
+      "recording_json_included": false,
+      "audio_included": false
+    }
+  ]
+}

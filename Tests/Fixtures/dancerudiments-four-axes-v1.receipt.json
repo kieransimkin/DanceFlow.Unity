@@ -1,0 +1,24 @@
+{
+  "fixture": "dancerudiments-four-axes-v1.json",
+  "source_sha256": "dbe5a06fe6677ae04ffcbd0a86b09964e0358e4b07768bb0ccb5712d01715194",
+  "format": "dancerudiments.recording",
+  "start_pip": -32,
+  "sample_count": 6,
+  "dimensions": 4,
+  "sample_at_-32": [
+    0.2,
+    0.6,
+    0.9,
+    0.1
+  ],
+  "sample_at_-30": [
+    -1,
+    0,
+    0.123456789012,
+    1
+  ],
+  "end_pip_exclusive": -26,
+  "descriptor_sha256": "d61e3f990695fd6db80c7bb4ec375429cabce32997775c5a924fcb3c1a3286ae",
+  "cache_sha256": "1389531027374e2a6bd29745c8a1c458e6dc4d09081edb6b85d5dab77e8b4713",
+  "cache_bytes": 260
+}

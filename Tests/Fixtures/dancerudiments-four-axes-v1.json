@@ -1,0 +1,65 @@
+{
+  "format": "dancerudiments.recording",
+  "schema_version": 1,
+  "pips_per_beat": 64,
+  "sample_dtype": "float64",
+  "sample_decimals": 12,
+  "name": "four_axes",
+  "dimensions": [
+    "bass",
+    "treble",
+    "drums",
+    "vocals"
+  ],
+  "clock": {
+    "bpm": 145.0,
+    "bpm_source": "synthetic authoring test",
+    "bpm_status": "estimated",
+    "beat_zero_seconds": 0.25,
+    "phase_status": "unverified",
+    "start_pip": -32
+  },
+  "samples": [
+    [
+      0.2,
+      0.6,
+      0.9,
+      0.1
+    ],
+    [
+      0.3,
+      0.4,
+      0.2,
+      0.7
+    ],
+    [
+      -1,
+      0,
+      0.123456789012,
+      1
+    ],
+    [
+      0,
+      0.5,
+      -0.7,
+      -0.4
+    ],
+    [
+      1,
+      -1,
+      0,
+      0.125
+    ],
+    [
+      -0.1,
+      0.2,
+      0.3,
+      -0.5
+    ]
+  ],
+  "provenance": {
+    "producer": "synthetic fixture",
+    "note": "<script>is inert data</script>",
+    "synthetic": true
+  }
+}

@@ -17,6 +17,10 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Compile and run Unity-independent Phase 1 clock tests
         run: dotnet run --project tools/clock-checks/ClockChecks.csproj --configuration Release
+      - name: Compile and run Unity-independent Phase 3 native recording checks
+        run: dotnet run --project tools~/recording-checks/RecordingChecks.csproj --configuration Release
+      - name: Verify Phase 3 native-clock fixture SHA-256 and expected samples
+        run: python tools~/recording-checks/verify_fixture.py
       - name: Validate Phase 2 shader API and golden fixtures (no Unity licence needed)
         run: python tools/shader-checks/check_shader_contract.py
       - name: Test benchmark comparison, missing-counter handling and schema
