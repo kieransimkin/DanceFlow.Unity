@@ -1,0 +1,21 @@
+{
+  "schema": "danceflow.unity.kandi-boom-assets.v1",
+  "repository": "kieransimkin/DanceRudiments",
+  "commit": "08e8628cb31fdc124358ae6f818c081f4cf0e96e",
+  "asset_root": "harness/kandi-boom/assets",
+  "target_type": "syn://type/danceflow/motion/rig/custom/kandi-boom",
+  "character": "Kandi Boom",
+  "bones": ["Hips", "LeftUpLeg", "LeftLeg", "LeftFoot", "LeftToeBase", "RightUpLeg", "RightLeg", "RightFoot", "RightToeBase", "Spine02", "Spine01", "Spine", "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand", "RightShoulder", "RightArm", "RightForeArm", "RightHand", "neck", "Head", "head_end", "headfront"],
+  "assets": [
+    {"name":"kandi-boom.fbx","bytes":8563852,"sha256":"714b6a182f2a5684487cd0227b6c9175da604d9c1f98416d44ee23f465ca488e"},
+    {"name":"albedo.png","bytes":7047031,"sha256":"e78fbab017f04c013a9b95e29f92818ed6da545b00d96c10cbeee537ead5f59d"},
+    {"name":"normal.png","bytes":7440971,"sha256":"bdb2a23ffdd3ef741a37477eb68d1faff124da5fc57d5b43c05e8e330ca86e74"},
+    {"name":"metallic.png","bytes":3219499,"sha256":"f091c0995d180a48a31ade8e6a026e8484454029c563b3965527f6de0fca7bd5"},
+    {"name":"roughness.png","bytes":2842354,"sha256":"7fff95bf6274d7214bc83ee4bbd05d11a6efbc8143961ddb5337d75b3acd2ffd"}
+  ],
+  "audit_files": [
+    {"name":"rig-audit.json","path":"harness/kandi-boom/rig-audit.json","git_blob_sha1":"6c5d8608ce9eaf63cbcf1bf5c1f26bfaee107796"},
+    {"name":"source-rig.json","path":"harness/kandi-boom/source-rig.json","git_blob_sha1":"b81f5cee888781bf795c3bf50025ac6d2fcd3b61"}
+  ],
+  "motion_remarks": "Source CMU salsa 60_01 (slot boxbot) and ballet 05_18 (slot prism) have time-only capture clocks; this Unity WebGL preview uses labelled procedural beat movement until explicit source-to-target retargeting is validated."
+}

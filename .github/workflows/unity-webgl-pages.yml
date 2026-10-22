@@ -1,0 +1,93 @@
+name: Unity WebGL — original Kandi Boom GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/unity-webgl-pages.yml'
+      - 'Runtime/**'
+      - 'Editor/**'
+      - 'Samples~/**'
+      - 'package.json'
+      - 'tools/kandi-webgl/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: danceflow-kandi-pages
+  cancel-in-progress: false
+
+jobs:
+  build-webgl:
+    name: Verify real Kandi Boom assets and compile Unity WebGL
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+      UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate pinned source lock and offline pipeline tests
+        run: |
+          python -m json.tool tools/kandi-webgl/asset-lock.json > /dev/null
+          python -m unittest discover -s tools/kandi-webgl/tests -p 'test_*.py' -v
+      - name: Require Unity Editor license for an actual Unity WebGL build
+        shell: bash
+        run: |
+          if [[ -z "${UNITY_LICENSE}" && -z "${UNITY_SERIAL}" ]]; then
+            echo '::error::Configure Unity license/serial secrets. Cannot deploy a fake Unity demo.'
+            exit 1
+          fi
+      - name: Assemble a pinned Unity 6 UPM consumer project
+        run: python tools/kandi-webgl/prepare_project.py --repo . --output WebGLDemo
+      - name: Fetch ORIGINAL DanceRudiments Kandi Boom FBX + four PBR textures
+        run: python tools/kandi-webgl/fetch_assets.py --output WebGLDemo/Assets/KandiBoomSource
+      - name: Compile actual Kandi Boom Unity WebGL player
+        uses: game-ci/unity-builder@v4
+        with:
+          projectPath: WebGLDemo
+          targetPlatform: WebGL
+          buildMethod: DanceFlow.Unity.WebGLDemo.Editor.KandiBoomWebGLBuild.Build
+          buildsPath: build
+          buildName: KandiBoom
+      - name: Validate WASM, data payload, Pages portal and original source receipt
+        run: |
+          python tools/kandi-webgl/publish_pages.py \
+            --build build/WebGL/KandiBoom \
+            --output _pages \
+            --receipt WebGLDemo/Assets/KandiBoomSource/asset-receipt.json
+      - name: Save real WebGL build for CI inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: verified-kandi-boom-unity-webgl
+          path: build/WebGL/KandiBoom/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload Pages artifact (only if Unity build succeeded)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _pages
+
+  deploy-pages:
+    name: Publish actual Unity WebGL Kandi Boom demo
+    needs: build-webgl
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.pages.outputs.page_url }}
+    steps:
+      - id: pages
+        uses: actions/deploy-pages@v4

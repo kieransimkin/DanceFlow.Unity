@@ -24,3 +24,9 @@ Cache/
 bench-results/
 __pycache__/
 *.pyc
+
+# Generated Unity WebGL consumer project: includes the original source FBX/maps
+# downloaded from DanceRudiments; never commit the 29 MiB binary asset payload.
+WebGLDemo/
+build/
+_pages/
