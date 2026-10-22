@@ -1,0 +1,10 @@
+{
+  "name": "com.kieransimkin.danceflow.unity",
+  "version": "0.1.0",
+  "displayName": "DanceFlow for Unity",
+  "description": "Planned Unity integration for DanceFlow musical clocks, shader timing, motion recordings and rigged animation. Initial documentation-only skeleton.",
+  "unity": "6000.0",
+  "author": { "name": "Kieran Simkin", "url": "https://kieransimkin.co.uk/" },
+  "keywords": ["danceflow", "audio", "bpm", "animation", "shaders", "motion"],
+  "documentationUrl": "https://github.com/kieransimkin/DanceFlow.Unity"
+}
