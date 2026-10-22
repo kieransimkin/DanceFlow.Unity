@@ -1,3 +1,5 @@
-# Byte-exact, SHA-256-pinned fixture: checkout MUST preserve LF line endings.
-Tests/Fixtures/dancerudiments-four-axes-v1.json text eol=lf
-Tests/Fixtures/dancerudiments-four-axes-v1.receipt.json text eol=lf
+# Byte-exact SHA-256 fixtures: never apply core.autocrlf or EOL conversion.
+# Keep readable Git diffs, but preserve original blob bytes on every checkout.
+.gitattributes text eol=lf
+Tests/Fixtures/dancerudiments-four-axes-v1.json -text diff
+Tests/Fixtures/dancerudiments-four-axes-v1.receipt.json -text diff

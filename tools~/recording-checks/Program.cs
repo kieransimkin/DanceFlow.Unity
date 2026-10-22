@@ -55,8 +55,10 @@ internal static class Program
         Near(recording.SampleExact(-32, 0), 0.2, "Native first bass sample");
         Near(recording.SampleExact(-30, 2), 0.123456789012, "Float64 twelve-decimal source sample");
         Near(recording.SampleAtPip(-31.5, 0), 0.25, "Linear fractional pip interpolation");
-        Near(recording.SampleAtPip(-31.5, 0, RecordingInterpolation.Step), 0.3,
+        Near(recording.SampleAtPip(-31.5, 0, RecordingInterpolation.Step), 0.2,
             "Exact pip-window (step) sampling");
+        Near(recording.SampleAtPip(-31, 0, RecordingInterpolation.Step), 0.3,
+            "Step sampling advances only at the following integer pip");
         Near(recording.SampleAtPip(-26.5, 0), -0.1, "Final pip window holds final sample");
         Reject(() => recording.SampleExact(-33, 0), "Native sample before capture rejects");
         Reject(() => recording.SampleExact(-26, 0), "Native sample at exclusive end rejects");
