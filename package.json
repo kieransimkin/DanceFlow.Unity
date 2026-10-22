@@ -1,8 +1,8 @@
 {
   "name": "com.kieransimkin.danceflow.unity",
-  "version": "0.4.0",
+  "version": "0.5.0-preview.1",
   "displayName": "DanceFlow for Unity",
-  "description": "DanceFlow authoritative BPM clock, source-verified variable tempo, shader clock bridge, and complete DanceRudiments recording/motion playback for Unity; rigging planned.",
+  "description": "DanceFlow Unity musical clock, source-bound motion recordings, GPU modulation and preview Rigify/custom skeleton playback via Playables.",
   "unity": "6000.0",
   "author": {
     "name": "Kieran Simkin",
@@ -32,6 +32,11 @@
       "displayName": "Song Reactive Landscape",
       "description": "Procedural landscape showcase with tree/grass wind, palette shifts and geometry warping driven by motion signals for StemLab example songs and Bass Ben & Friends presets.",
       "path": "Samples~/SongReactiveLandscape"
+    },
+    {
+      "displayName": "Rigged Character Demos",
+      "description": "Two procedurally skinned characters with verified synthetic DanceRudiments rig-motion recordings, plus Kandi Boom optional rig audit.",
+      "path": "Samples~/RiggedCharacterDemos"
     }
   ]
 }

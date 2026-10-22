@@ -1,0 +1,17 @@
+{
+  "schema": "danceflow.unity.optional-rig-target.v1",
+  "name": "Kandi Boom",
+  "series": "Bass Ben & Friends",
+  "type_uri": "syn://type/danceflow/motion/rig/custom/kandi-boom",
+  "source_fbx_sha256": "714b6a182f2a5684487cd0227b6c9175da604d9c1f98416d44ee23f465ca488e",
+  "source": "https://github.com/kieransimkin/DanceRudiments/blob/main/harness/kandi-boom/source-rig.json",
+  "source_rig_blender_rigify": false,
+  "bone_count": 24,
+  "expected_bones": ["Hips", "LeftUpLeg", "LeftLeg", "LeftFoot", "LeftToeBase", "RightUpLeg", "RightLeg", "RightFoot", "RightToeBase", "Spine02", "Spine01", "Spine", "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand", "RightShoulder", "RightArm", "RightForeArm", "RightHand", "neck", "Head", "head_end", "headfront"],
+  "motion_slots": {
+    "boxbot": {"name":"CMU Salsa 60_01", "timing_kind":"time-only", "source_seconds_per_beat":1},
+    "prism": {"name":"CMU Ballet 05_18", "timing_kind":"time-only", "source_seconds_per_beat":1}
+  },
+  "assets_bundled": false,
+  "retargeting": "Explicitly retarget source pose to verified Kandi Boom bind-skeleton. Source recordings are not a Rigify control profile and are not musically beat-matched by default."
+}

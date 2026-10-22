@@ -1,0 +1,29 @@
+diff --git a/.gitattributes b/.gitattributes
+index 2494521..543928f 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -1,3 +1,5 @@
+-# Byte-exact, SHA-256-pinned fixture: checkout MUST preserve LF line endings.
+-Tests/Fixtures/dancerudiments-four-axes-v1.json text eol=lf
+-Tests/Fixtures/dancerudiments-four-axes-v1.receipt.json text eol=lf
++# Byte-exact SHA-256 fixtures: never apply core.autocrlf or EOL conversion.
++# Keep readable Git diffs, but preserve original blob bytes on every checkout.
++.gitattributes text eol=lf
++Tests/Fixtures/dancerudiments-four-axes-v1.json -text diff
++Tests/Fixtures/dancerudiments-four-axes-v1.receipt.json -text diff
+diff --git a/tools~/recording-checks/Program.cs b/tools~/recording-checks/Program.cs
+index 42f6765..4e15108 100644
+--- a/tools~/recording-checks/Program.cs
++++ b/tools~/recording-checks/Program.cs
+@@ -53,8 +53,10 @@ void Sample() {
+         Near(recording.SampleExact(-32, 0), 0.2, "Native first bass sample");
+         Near(recording.SampleExact(-30, 2), 0.123456789012, "Float64 twelve-decimal source sample");
+         Near(recording.SampleAtPip(-31.5, 0), 0.25, "Linear fractional pip interpolation");
+-        Near(recording.SampleAtPip(-31.5, 0, RecordingInterpolation.Step), 0.3,
++        Near(recording.SampleAtPip(-31.5, 0, RecordingInterpolation.Step), 0.2,
+             "Exact pip-window (step) sampling");
++        Near(recording.SampleAtPip(-31, 0, RecordingInterpolation.Step), 0.3,
++            "Step sampling advances only at the following integer pip");
+         Near(recording.SampleAtPip(-26.5, 0), -0.1, "Final pip window holds final sample");
+         Reject(() => recording.SampleExact(-33, 0), "Native sample before capture rejects");
+ }}

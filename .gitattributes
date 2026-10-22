@@ -3,3 +3,4 @@
 .gitattributes text eol=lf
 Tests/Fixtures/dancerudiments-four-axes-v1.json -text diff
 Tests/Fixtures/dancerudiments-four-axes-v1.receipt.json -text diff
+Samples~/RiggedCharacterDemos/Data/*.rig-motion.json -text diff

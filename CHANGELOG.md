@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0-preview.1 (source-only, not released) — Stage 4 rig playback foundation
+- Canonical DanceRudiments Rigify/custom rig-profile and rig-motion import, exact SHA fingerprint, ordered channel identity and physical-value decoding.
+- Native 64-pip rig poses, step controls, shortest-path quaternion SLERP, bounded crossfades, reviewed skeleton mappings, root-motion policy and transform/Playable backends.
+- Opt-in two-skinned-character synthetic Unity sample and SHA-pinned optional Kandi Boom target audit (no bundled FBX/audio/CMU).
+- Unit and source-parity fixture checks; Unity Editor / GPU hardware / real character retargeting acceptance remains outstanding.
+
 ## 0.4.0 (work in progress, unreleased) — Phase 3 complete motion layer
 - Completed the Phase 3 recording subsystem with strict canonical DanceRudiments JSON import, lossless DFR1 float64 cache generation, exact/linear bounded sampling and explicit recording-to-master time mapping.
 - Added typed motion adapters for Transform local position, Light intensity, ParticleSystem emission and Renderer float/colour properties.

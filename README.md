@@ -1,35 +1,43 @@
-# DanceFlow.Unity — Phase 3 cumulative patch
+# DanceFlow for Unity
 
-**Published baseline:** `kieransimkin/DanceFlow.Unity` `main` commit `9e1a02fba4a81e7cf770cd0d5f18bd55b4c7e394` (22 Oct 2026).
+**Status:** Phases 1–3 implemented in source; **Stage 4 preview** adds validated rigged-character playback. Final Unity Editor/GPU and real-character rigging acceptance remains outstanding.
 
-The **one canonical cumulative patch** is `DanceFlow.Unity-Phase3-Cumulative.patch`. It adds the Phase 3 recording foundation, song-reactive samples, source-verified local song asset profiles, motion bindings and seek-safe 4 MiB GPU recording windows. It does not include proprietary songs/audio, copyright-restricted motion, Blender files, or model weights. The optional song samples remain under `Samples~/` until explicitly imported in Unity.
+UPM package: `com.kieransimkin.danceflow.unity` · Unity 6+ (`6000.0`). Current repository manifest is `0.5.0-preview.1` (not a published release tag).
 
-`Phase3-From-Foundation.patch` and `Phase3-From-Showcase.patch` are **compatibility deltas only** for users who already applied a previously supplied partial Phase 3 slice. The installer checks for the cleanly applicable variant, so users do not stack patches manually.
+[Implementation plan](docs/00-implementation-plan.md) · [Timing contracts](docs/02-clock-contract.md) · [GPU shader API](docs/03-shader-api.md) · [Recording format](docs/04-recording-format.md) · [Rigging guide](docs/06-rigging.md) · [Song showcase](docs/09-song-reactive-showcase.md)
 
-## Installation
+## Install in Unity
 
-Extract this ZIP, open a clean `DanceFlow.Unity` Git checkout, and from PowerShell run:
+In Package Manager choose **Add package from git URL**, enter:
+
+```
+https://github.com/kieransimkin/DanceFlow.Unity.git
+```
+
+For reproducible builds, pin a reviewed release tag or commit rather than using an unpinned branch. Rigged demos are opt-in under Package Manager → Samples; no heavyweight audio, external character FBX, model weights or CMU recordings ship with the runtime package.
+
+## Features
+
+- **Phase 1:** Fixed and source-verified StemLab variable BPM, native 16-tick/64-pip timing, audio DSP/manual transport, seeks, loops, excerpt source identity, cue scheduler.
+- **Phase 2:** BPM, beat/bar/pip phases and pulses available to Unity vertex/fragment shaders via `DanceFlowShaderBridge` and `DanceFlowClock.hlsl`; deterministic GPU time packing and URP sample.
+- **Phase 3:** Strict `dancerudiments.recording` source validation, byte-verified DFR1 float64 cache, explicit motion-source clocks, channel bindings, GPU recording windows and song-reactive procedural landscapes. Presets include StemLab examples and Bass Ben & Friends’ *Star Lights Glow* (no audio included).
+- **Stage 4 preview:** Versioned `dancerudiments.rig-profile` and `rig-motion` validation; typed rig channel decoding; native pip pose sampling and quaternion interpolation; reviewed Unity skinned bone mappings; direct transform or Animation Playables job playback, blends and root translation policy.
+
+## Stage 4 demo and import
+
+Import **Rigged Character Demos** from Package Manager, then choose **Tools → DanceFlow → Stage 4 → Create Two Synthetic Skinned Rig Demos**. It builds two distinct SkinnedMeshRenderer robots with a silent 120-BPM synthetic clock. Kandi Boom/CMU clips require a separate verified target FBX, legal assets and explicit retargeting; see [rigging documentation](docs/06-rigging.md).
+
+To import a compatible real rig motion, choose **Assets → DanceFlow → Import DanceRudiments Rig Motion…** and supply a canonical `.json`. The importer preserves profile SHA-256 and the native recording's independent clock. Playback refuses unreviewed skeletons and never loops captures automatically.
+
+## Checks
 
 ```powershell
-& "<extracted bundle path>\Apply-Phase3.ps1" -RepositoryPath . -RunChecks
+dotnet run --project tools/clock-checks/ClockChecks.csproj -c Release
+dotnet run --project tools~/recording-checks/RecordingChecks.csproj -c Release
+dotnet run --project tools~/rigging-checks/RiggingChecks.csproj -c Release
+python tools~/rigging-checks/generate_fixtures.py --verify
+python -m unittest discover -s tools~/rigging-checks -p test_*.py -v
+python -m unittest discover -s tools~/showcase-checks -p test_*.py -v
 ```
 
-Or from Bash:
-
-```bash
-bash '/path/to/bundle/apply-phase3.sh' /path/to/DanceFlow.Unity --checks
-```
-
-A successful application leaves changes **uncommitted**, with no forced resets or overwrites. Run `git diff --check` and inspect before `git add -A && git commit`.
-
-## Actual song integration
-
-- Import exact local song master and full StemLab beat timeline where available, and import a matching native `dancerudiments.recording` via **Assets > DanceFlow**.
-- In Unity, import **Song Reactive Landscape** sample from Package Manager; use **Tools > DanceFlow > Samples > Create Source-Verified Song Profile...**. This hashes original master bytes, validates the corrected map, and checks any asserted recording-provenance source hash.
-- Select that profile and use **Tools > DanceFlow > Samples > Create Scene From Selected Song Profile**. The generated scene drives procedural trees, grass, fog, stars, palette and vertex warps from selected recorded channels.
-- Star Lights Glow *Mystery Liquid Kick* and *Anthem* are separate profiles; neither has an invented BPM. Synthetic preview is labelled as unmatched.
-- Run `python tools~/showcase-checks/prepare_song_assets.py --help` to audit `.json` and `.json.gz` recordings and output an evidence receipt without copying audio. Use `export_catalogue_match.py` only with the actual native DanceRudiments Python package and a separately measured candidate pattern.
-
-## Verification boundary
-
-Standalone Python fixtures and shader contract checks passed at patch preparation time. **.NET / Unity Editor compilation, ShaderLab compilation, real audio sync and GPU readback were not executed** here; the Unity and hardware workflows remain release gates. Version stays 0.3.0 until further acceptance; the Phase 3 release is not claimed.
+Automated managed checks and static tests do not demonstrate actual Unity skinning, framebuffer rendering or audio-to-photon timing. Unity Editor tests, PlayMode and licensed GPU acceptance are separate release gates. Preserve the existing SHA-pinned recording fixtures and the repository’s `.gitattributes` rules; never normalize their bytes when hashing.

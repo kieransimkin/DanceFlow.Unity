@@ -21,6 +21,13 @@ jobs:
         run: dotnet run --project tools~/recording-checks/RecordingChecks.csproj --configuration Release
       - name: Verify Phase 3 native-clock fixture SHA-256 and expected samples
         run: python tools~/recording-checks/verify_fixture.py
+      - name: Verify Stage 4 canonical rig profiles, pose interpolation and source identity
+        run: |
+          python tools~/rigging-checks/generate_fixtures.py --verify
+          python -m unittest discover -s tools~/rigging-checks -p test_*.py -v
+          dotnet run --project tools~/rigging-checks/RiggingChecks.csproj --configuration Release
+      - name: Validate Phase 3 song-profile and showcase integrations
+        run: python -m unittest discover -s tools~/showcase-checks -p test_*.py -v
       - name: Validate Phase 2 shader API and golden fixtures (no Unity licence needed)
         run: python tools/shader-checks/check_shader_contract.py
       - name: Test benchmark comparison, missing-counter handling and schema
