@@ -75,6 +75,17 @@ namespace DanceFlow.Unity.Clock
                                                                masterFrames, masterChannels);
             // Parse before replacement so a rejected map does not alter the live clock.
             var map = StemLabBeatTimeline.Parse(json, identity);
+            UseVerifiedBeatMap(map);
+        }
+
+        /// <summary>
+        /// Adopt a map that was already strictly parsed against an independently verified
+        /// original audio source identity. Avoid decoding untrusted map data during playback.
+        /// </summary>
+        public void UseVerifiedBeatMap(VariableBeatMap map)
+        {
+            if (map == null) throw new ArgumentNullException(nameof(map));
+            if (Transport == null) throw new InvalidOperationException("Clock is not initialized.");
             Transport.ReplaceMap(map);
             _scheduler.Reset();
             _cueScheduler?.Reset();

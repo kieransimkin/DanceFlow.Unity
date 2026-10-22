@@ -6,7 +6,7 @@
 // row/fraction cursor; the shader never guesses BPM or wraps finite captures.
 StructuredBuffer<float> _DanceFlow_RecordingSamples;
 float _DanceFlow_RecordingBufferValid;
-// x: absolute index within the buffer (integer float <= 1,048,576); y: [0,1)
+// x: row relative to the current bounded overlapping GPU window; y: [0,1)
 // z: dimension count; w: row count
 float4 _DanceFlow_RecordingCursor;
 

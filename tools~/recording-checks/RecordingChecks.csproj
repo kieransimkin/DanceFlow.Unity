@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../Runtime/Clock/StrictJson.cs" />
+    <Compile Include="../../Runtime/Clock/BeatState.cs" />
+    <Compile Include="../../Runtime/Clock/MusicalMath.cs" />
+    <Compile Include="../../Runtime/Motion/RecordingData.cs" />
+    <Compile Include="../../Runtime/Motion/RecordingJson.cs" />
+    <Compile Include="../../Runtime/Motion/RecordingBinaryCodec.cs" />
+    <Compile Include="../../Runtime/Motion/RecordingTimeMapping.cs" />
+  </ItemGroup>
+</Project>

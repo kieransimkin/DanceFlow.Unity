@@ -143,6 +143,41 @@ internal static class Program
             RecordingBinaryCodec.Sha256(RecordingBinaryCodec.Encode(longMotion))).SampleCount == 65537,
             "Long binary cache is not truncated to legacy ushort samples");
 
+        // Optional recording provenance may claim a master SHA. Absence is NOT proof.
+        Require(!RecordingSourceIdentity.HasMatchingProvenanceHash(d, new string('a', 64)),
+            "Unclaimed provenance is not falsely represented as an audio hash match");
+        var asserted = new RecordingDescriptor(d.Name, d.Dimensions, d.Clock, d.SampleCount,
+            "{\"source_sha256\":\"" + new string('a', 64) + "\"}");
+        Require(RecordingSourceIdentity.HasMatchingProvenanceHash(asserted, new string('a', 64)),
+            "Actual recording provenance hash can identify exact source master");
+        Reject(() => RecordingSourceIdentity.HasMatchingProvenanceHash(asserted, new string('b', 64)),
+            "Contradictory source evidence always fails even when user approved retiming");
+
+        var nestedSha = new RecordingDescriptor(d.Name, d.Dimensions, d.Clock, d.SampleCount,
+            "{\"source_audio\":{\"sha256\":\"" + new string('a', 64) + "\"}}");
+        Require(RecordingSourceIdentity.HasMatchingProvenanceHash(nestedSha, new string('a', 64)),
+            "Nested StemLab source hash is recognised");
+        Reject(() => RecordingSourceIdentity.HasMatchingProvenanceHash(nestedSha, new string('b', 64)),
+            "Nested contradictory source hash cannot be approved as same-source timing");
+
+        // GPU windows preserve CPU's exact pip position at boundaries and after arbitrary seeks.
+        var w0 = RecordingGpuWindows.AtPip(1000, 4, -32, -32.25 + 0.25, 256);
+        Require(w0.StartRow == 0 && w0.CurrentRow == 0 && w0.RelativeRow == 0,
+            "First GPU window includes the native signed start pip");
+        var w1 = RecordingGpuWindows.AtPip(1000, 4, -32, 31.5, 256);
+        Require(w1.StartRow == 63 && w1.CurrentRow == 63 && w1.RelativeRow == 0,
+            "GPU chunk advances with a one-row overlap at a sample boundary");
+        Near(w1.Fraction, 0.5, "GPU fraction remains tied to authoritative CPU pip");
+        var wEnd = RecordingGpuWindows.AtPip(1000, 4, -32, 967.5, 256);
+        Require(wEnd.CurrentRow == 999 && wEnd.RelativeRow < wEnd.RowCount,
+            "GPU tail window represents final finite pip without wrapping");
+        Reject(() => RecordingGpuWindows.AtPip(1000, 4, -32, 968, 256),
+            "GPU refuses exact native exclusive capture end");
+        Reject(() => RecordingGpuWindows.AtPip(1000, 4, -32, -33, 256),
+            "GPU refuses samples before signed source recording");
+        Reject(() => RecordingGpuWindows.AtPip(1000, 4, -32, 0, 4),
+            "GPU buffer budget must hold adjacent rows");
+
         Console.WriteLine("DanceFlow Phase 3 recording checks: " + checks + " assertions passed.");
     }
 }

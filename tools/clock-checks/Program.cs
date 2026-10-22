@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using DanceFlow.Unity.Clock;
 using DanceFlow.Unity.GPU;
 using DanceFlow.Unity.Performance;
+using DanceFlow.Unity.Motion;
 
 internal static class Program
 {
@@ -172,6 +173,15 @@ internal static class Program
             "Unavailable timing is not silently filled with zero observations");
         Fails(() => FrameSeriesStats.Calculate(new double[] { double.NaN }, 1),
             "Non-finite frame timings fail closed");
-        Console.WriteLine($"DanceFlow Phases 1–2 clock/shader/benchmark checks passed ({_passed} assertions).");
+        var sampleA = new double[4];
+        var sampleB = new double[4];
+        MotionSignalMath.SyntheticPreview(-0.125, sampleA);
+        MotionSignalMath.SyntheticPreview(-0.125, sampleB);
+        Expect(sampleA.SequenceEqual(sampleB), "Synthetic preview is deterministic and never an inferred song match");
+        foreach (double a in sampleA) Expect(a >= -1 && a <= 1, "Preview motion stays in signed unit range");
+        Close(MotionSignalMath.Remap(-1, 10, 30), 10, "Modulation low endpoint");
+        Close(MotionSignalMath.Remap(0, 10, 30), 20, "Modulation centre point");
+        Close(MotionSignalMath.Remap(1, 10, 30), 30, "Modulation high endpoint");
+        Console.WriteLine($"DanceFlow Phases 1–3B managed clock/shader/modulation checks passed ({_passed} assertions).");
     }
 }
