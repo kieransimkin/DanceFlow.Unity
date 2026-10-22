@@ -1,0 +1,270 @@
+diff --git a/.gitattributes b/.gitattributes
+new file mode 100644
+index 0000000..2494521
+--- /dev/null
++++ b/.gitattributes
+@@ -0,0 +1,3 @@
++# Byte-exact, SHA-256-pinned fixture: checkout MUST preserve LF line endings.
++Tests/Fixtures/dancerudiments-four-axes-v1.json text eol=lf
++Tests/Fixtures/dancerudiments-four-axes-v1.receipt.json text eol=lf
+diff --git a/Runtime/GPU/MotionRecordingGpuBridge.cs b/Runtime/GPU/MotionRecordingGpuBridge.cs
+index 0e0b359..c0e3f68 100644
+--- a/Runtime/GPU/MotionRecordingGpuBridge.cs
++++ b/Runtime/GPU/MotionRecordingGpuBridge.cs
+@@ -6,10 +6,9 @@ using UnityEngine;
+ namespace DanceFlow.Unity.GPU
+ {
+     /// <summary>
+-    /// Optional float32 GPU mirror of a validated N-dimensional recording (sampled on demand).
+-    /// The CPU recording remains the float64 authority. The GPU mirror is limited to a bounded
+-    /// number of samples, with an explicit cursor; no hidden phase retiming or looping.
+-    /// For multiple songs, use material-local buffers in a later renderer adapter.
++    /// Optional seek-safe GPU mirror of the CPU-authoritative recording. Long captures
++    /// upload overlapping <=4 MiB windows, never truncating or looping the source.
++    /// The MotionSignalBus owns all source-time/beat-retiming decisions.
+     /// </summary>
+     [DisallowMultipleComponent]
+     [DefaultExecutionOrder(9100)]
+@@ -21,16 +20,12 @@ namespace DanceFlow.Unity.GPU
+         private static readonly int CursorId = Shader.PropertyToID("_DanceFlow_RecordingCursor");
+         [SerializeField] private MotionSignalBus signalBus;
+         [SerializeField] private DanceFlowClockBehaviour songClock;
+-        [SerializeField] private bool enableFullRecordingGpuBuffer;
+-        [Header("GPU cursor mapping (must match MotionSignalBus)")]
+-        [SerializeField] private RecordingTimeDomain timeDomain = RecordingTimeDomain.OriginalSourceSeconds;
+-        [SerializeField] private bool sameSourceTimelineAcknowledged;
+-        [SerializeField] private double masterAnchorBeat;
+-        [SerializeField] private double recordingAnchorPip;
+-        [SerializeField] private double recordingPipsPerMasterBeat = 64;
+-        [SerializeField] private bool unverifiedPhaseRetimingApproved;
++        [SerializeField, Tooltip("Opt-in bounded GPU recording windows; disabled by default.")]
++        private bool enableFullRecordingGpuBuffer;
+         private GraphicsBuffer _buffer;
+         private MotionRecording _bufferedRecording;
++        private int _uploadedStartRow = -1;
++        private int _uploadedRowCount;
+         private static MotionRecordingGpuBridge _active;
+ 
+         private void OnEnable()
+@@ -54,46 +49,46 @@ namespace DanceFlow.Unity.GPU
+                 return;
+             }
+             MotionRecording recording = signalBus.Recording;
+-            long values = (long)recording.SampleCount * recording.DimensionCount;
+-            if (values > MaximumGpuScalars) { SetInvalid(); return; }
+-            if (_buffer == null || _bufferedRecording != recording) Upload(recording);
+             try
+             {
+-                var mapping = timeDomain == RecordingTimeDomain.OriginalSourceSeconds
+-                    ? RecordingTimeMapping.OriginalSourceSeconds()
+-                    : RecordingTimeMapping.ExplicitBeatRetiming(masterAnchorBeat, recordingAnchorPip,
+-                          recordingPipsPerMasterBeat, unverifiedPhaseRetimingApproved);
+-                if (timeDomain == RecordingTimeDomain.OriginalSourceSeconds && !sameSourceTimelineAcknowledged)
+-                {
+-                    SetInvalid(); return;
+-                }
+-                double pip = mapping.RecordingPip(songClock.Current, recording.Clock);
+-                double row = pip - recording.Clock.StartPip;
+-                if (row < 0 || row >= recording.SampleCount) { SetInvalid(); return; }
+-                float index = (float)Math.Floor(row);
+-                float fraction = (float)(row - Math.Floor(row));
+-                Shader.SetGlobalVector(CursorId, new Vector4(index, fraction,
+-                    recording.DimensionCount, recording.SampleCount));
++                // Exactly the same source pip used by the CPU motion signals; never another clock.
++                double pip = signalBus.LastRecordingPip;
++                RecordingGpuWindow window = RecordingGpuWindows.AtPip(
++                    recording.SampleCount, recording.DimensionCount,
++                    recording.Clock.StartPip, pip, MaximumGpuScalars);
++                if (_buffer == null || _bufferedRecording != recording ||
++                    _uploadedStartRow != window.StartRow || _uploadedRowCount != window.RowCount)
++                    Upload(recording, window);
++                Shader.SetGlobalVector(CursorId, new Vector4(window.RelativeRow,
++                    window.Fraction, recording.DimensionCount, window.RowCount));
+                 Shader.SetGlobalBuffer(BufferId, _buffer);
+                 Shader.SetGlobalFloat(ValidId, 1);
+             }
+             catch (Exception ex) when (ex is InvalidOperationException || ex is ArgumentException || ex is OverflowException)
+             {
+-                Debug.LogWarning("GPU recording cursor is invalid: " + ex.Message, this);
++                Debug.LogWarning("GPU recording cursor or buffer rejected: " + ex.Message, this);
+                 SetInvalid();
+             }
+         }
+ 
+-        private void Upload(MotionRecording recording)
++        private void Upload(MotionRecording recording, RecordingGpuWindow window)
+         {
+-            DestroyBuffer();
+-            long count = (long)recording.SampleCount * recording.DimensionCount;
+-            if (count <= 0 || count > MaximumGpuScalars) return;
++            long count = (long)window.RowCount * recording.DimensionCount;
++            if (count <= 0 || count > MaximumGpuScalars)
++                throw new ArgumentOutOfRangeException(nameof(window), "GPU motion window exceeds fixed budget.");
++            if (_buffer == null || _buffer.count != (int)count)
++            {
++                DestroyBuffer();
++                _buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, (int)count, sizeof(float));
++            }
+             var values = new float[(int)count];
+-            for (int i = 0; i < values.Length; i++) values[i] = (float)recording.NativeValues[i];
+-            _buffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, values.Length, sizeof(float));
++            int offset = checked(window.StartRow * recording.DimensionCount);
++            for (int i = 0; i < values.Length; i++)
++                values[i] = (float)recording.NativeValues[offset + i];
+             _buffer.SetData(values);
+             _bufferedRecording = recording;
++            _uploadedStartRow = window.StartRow;
++            _uploadedRowCount = window.RowCount;
+         }
+ 
+         private static void SetInvalid()
+@@ -105,6 +100,8 @@ namespace DanceFlow.Unity.GPU
+         {
+             if (_buffer != null) { _buffer.Dispose(); _buffer = null; }
+             _bufferedRecording = null;
++            _uploadedStartRow = -1;
++            _uploadedRowCount = 0;
+         }
+         private void OnDisable()
+         {
+diff --git a/Runtime/Motion/MotionSignalBus.cs b/Runtime/Motion/MotionSignalBus.cs
+index b9e5b03..2a06087 100644
+--- a/Runtime/Motion/MotionSignalBus.cs
++++ b/Runtime/Motion/MotionSignalBus.cs
+@@ -49,6 +49,8 @@ namespace DanceFlow.Unity.Motion
+         public bool IsRecordedSample { get; private set; }
+         public bool HasSample { get; private set; }
+         public MotionRecording Recording => _recording;
++        /// <summary>Last source recording pip evaluated by the authoritative CPU clock; NaN if absent.</summary>
++        public double LastRecordingPip { get; private set; } = double.NaN;
+         public MotionSignalSource Source => source;
+         public float Value(int slot) => slot >= 0 && slot < 4 ? _values[slot] : throw new ArgumentOutOfRangeException(nameof(slot));
+         public string SlotName(int slot) => slot switch
+@@ -68,6 +70,55 @@ namespace DanceFlow.Unity.Motion
+             if (isActiveAndEnabled) Acquire();
+         }
+ 
++        /// <summary>
++        /// Explicitly bind four semantic channels to a finite recording. A matching source
++        /// clock must be acknowledged; unverified musical phase cannot be guessed.
++        /// </summary>
++        public void UseRecording(MotionRecordingAsset asset, string[] channels,
++            RecordingTimeDomain domain, bool approvedSameSource, double masterBeat,
++            double recordingPip, double pipsPerMasterBeat, bool approvedUnverifiedPhase)
++        {
++            if (asset == null) throw new ArgumentNullException(nameof(asset));
++            if (channels == null || channels.Length != 4)
++                throw new ArgumentException("Four channel slots must be explicitly named.", nameof(channels));
++            var descriptor = asset.Descriptor;
++            bool any = false;
++            foreach (string channel in channels)
++                if (channel != null && descriptor.TryChannelIndex(channel, out _)) any = true;
++            if (!any) throw new ArgumentException("None of the requested channels exists in the recording.", nameof(channels));
++            if (domain == RecordingTimeDomain.OriginalSourceSeconds && !approvedSameSource)
++                throw new InvalidOperationException("The recording and master require an explicitly approved source-clock association.");
++            if (domain == RecordingTimeDomain.ExplicitMusicalRetiming)
++                RecordingTimeMapping.ExplicitBeatRetiming(masterBeat, recordingPip, pipsPerMasterBeat, approvedUnverifiedPhase)
++                    .RecordingPip(new BeatState(0, 0, 0, 120, 4, 0, 0, 0, false), descriptor.Clock);
++            else if (domain != RecordingTimeDomain.OriginalSourceSeconds)
++                throw new ArgumentOutOfRangeException(nameof(domain));
++            windChannel = channels[0]; gustChannel = channels[1];
++            paletteChannel = channels[2]; sparkleChannel = channels[3];
++            sameSourceTimelineAcknowledged = approvedSameSource;
++            timeDomain = domain;
++            masterAnchorBeat = masterBeat;
++            recordingAnchorPip = recordingPip;
++            recordingPipsPerMasterBeat = pipsPerMasterBeat;
++            unverifiedPhaseRetimingApproved = approvedUnverifiedPhase;
++            recordingAsset = asset;
++            source = MotionSignalSource.ImportedRecording;
++            _warned = false;
++            LastRecordingPip = double.NaN;
++            if (isActiveAndEnabled) Acquire();
++        }
++
++        public void UseSyntheticPreview()
++        {
++            source = MotionSignalSource.SyntheticPreview;
++            recordingAsset = null;
++            Release();
++            HasSample = false;
++            IsRecordedSample = false;
++            LastRecordingPip = double.NaN;
++            _warned = false;
++        }
++
+         private void OnEnable()
+         {
+             if (_active != null && _active != this)
+@@ -117,6 +168,7 @@ namespace DanceFlow.Unity.Motion
+             BeatState state = songClock.Current; // single Phase 1 source of musical truth
+             HasSample = false;
+             IsRecordedSample = false;
++            LastRecordingPip = double.NaN;
+             for (int i = 0; i < _values.Length; i++) _values[i] = 0;
+             if (source == MotionSignalSource.SyntheticPreview)
+             {
+@@ -137,6 +189,9 @@ namespace DanceFlow.Unity.Motion
+                             : RecordingTimeMapping.ExplicitBeatRetiming(masterAnchorBeat, recordingAnchorPip,
+                                   recordingPipsPerMasterBeat, unverifiedPhaseRetimingApproved);
+                         double pip = mapping.RecordingPip(state, _recording.Clock);
++                        // Only publish an authoritative cursor while inside the finite capture.
++                        if (pip >= _recording.Clock.StartPip && pip < _recording.EndPipExclusive)
++                            LastRecordingPip = pip;
+                         // The recording is finite: never wrap, repeat, or extrapolate.
+                         for (int i = 0; i < 4; i++)
+                             _values[i] = _axis[i] < 0 ? 0 :
+@@ -183,6 +238,7 @@ namespace DanceFlow.Unity.Motion
+             _active = null;
+             Array.Clear(_values, 0, _values.Length);
+             HasSample = IsRecordedSample = false;
++            LastRecordingPip = double.NaN;
+             PublishGlobals();
+         }
+     }
+diff --git a/Samples~/SongReactiveLandscape/Editor/CreateSongShowcaseScene.cs b/Samples~/SongReactiveLandscape/Editor/CreateSongShowcaseScene.cs
+index fb8e18d..2246df4 100644
+--- a/Samples~/SongReactiveLandscape/Editor/CreateSongShowcaseScene.cs
++++ b/Samples~/SongReactiveLandscape/Editor/CreateSongShowcaseScene.cs
+@@ -30,7 +30,20 @@ namespace DanceFlow.Unity.Samples.Editor
+         [MenuItem("Tools/DanceFlow/Samples/Create Synthetic Motion Landscape")]
+         public static void CreatePreviewLandscape() => Create(SongShowcasePreset.SyntheticPreview);
+ 
+-        private static void Create(SongShowcasePreset preset)
++        [MenuItem("Tools/DanceFlow/Samples/Create Scene From Selected Song Profile")]
++        public static void CreateFromSelectedProfile()
++        {
++            var profile = Selection.activeObject as SongShowcaseProfile;
++            if (profile == null)
++                throw new InvalidOperationException("Select a DanceFlow Song Showcase Profile in the Project window.");
++            profile.ValidateForPlayback();
++            Create(profile.Song, profile);
++        }
++
++        [MenuItem("Tools/DanceFlow/Samples/Create Scene From Selected Song Profile", true)]
++        private static bool CanCreateFromSelectedProfile() => Selection.activeObject is SongShowcaseProfile;
++
++        private static void Create(SongShowcasePreset preset, SongShowcaseProfile profile = null)
+         {
+             if (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline == null)
+                 throw new InvalidOperationException("Assign a Universal Render Pipeline asset before creating this demo.");
+@@ -60,6 +73,7 @@ namespace DanceFlow.Unity.Samples.Editor
+             gpuProps.ApplyModifiedPropertiesWithoutUndo();
+             var demo = root.AddComponent<SongShowcaseBootstrap>();
+             demo.Configure(preset, clock, audio, bus);
++            if (profile != null) demo.ConfigureProfile(profile);
+             root.AddComponent<ProceduralLandscape>();
+ 
+             var cameraObject = new GameObject("Main Camera");
+diff --git a/tools~/recording-checks/RecordingChecks.csproj b/tools~/recording-checks/RecordingChecks.csproj
+index 925979c..be1f77e 100644
+--- a/tools~/recording-checks/RecordingChecks.csproj
++++ b/tools~/recording-checks/RecordingChecks.csproj
+@@ -16,5 +16,7 @@
+     <Compile Include="../../Runtime/Motion/RecordingJson.cs" />
+     <Compile Include="../../Runtime/Motion/RecordingBinaryCodec.cs" />
+     <Compile Include="../../Runtime/Motion/RecordingTimeMapping.cs" />
++    <Compile Include="../../Runtime/Motion/RecordingGpuWindow.cs" />
++    <Compile Include="../../Runtime/Motion/RecordingSourceIdentity.cs" />
+   </ItemGroup>
+ </Project>

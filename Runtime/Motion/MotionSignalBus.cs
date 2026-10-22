@@ -49,6 +49,8 @@ namespace DanceFlow.Unity.Motion
         public bool IsRecordedSample { get; private set; }
         public bool HasSample { get; private set; }
         public MotionRecording Recording => _recording;
+        /// <summary>Last source recording pip evaluated by the authoritative CPU clock; NaN if absent.</summary>
+        public double LastRecordingPip { get; private set; } = double.NaN;
         public MotionSignalSource Source => source;
         public float Value(int slot) => slot >= 0 && slot < 4 ? _values[slot] : throw new ArgumentOutOfRangeException(nameof(slot));
         public string SlotName(int slot) => slot switch
@@ -66,6 +68,55 @@ namespace DanceFlow.Unity.Motion
                 source = MotionSignalSource.ImportedRecording;
             }
             if (isActiveAndEnabled) Acquire();
+        }
+
+        /// <summary>
+        /// Explicitly bind four semantic channels to a finite recording. A matching source
+        /// clock must be acknowledged; unverified musical phase cannot be guessed.
+        /// </summary>
+        public void UseRecording(MotionRecordingAsset asset, string[] channels,
+            RecordingTimeDomain domain, bool approvedSameSource, double masterBeat,
+            double recordingPip, double pipsPerMasterBeat, bool approvedUnverifiedPhase)
+        {
+            if (asset == null) throw new ArgumentNullException(nameof(asset));
+            if (channels == null || channels.Length != 4)
+                throw new ArgumentException("Four channel slots must be explicitly named.", nameof(channels));
+            var descriptor = asset.Descriptor;
+            bool any = false;
+            foreach (string channel in channels)
+                if (channel != null && descriptor.TryChannelIndex(channel, out _)) any = true;
+            if (!any) throw new ArgumentException("None of the requested channels exists in the recording.", nameof(channels));
+            if (domain == RecordingTimeDomain.OriginalSourceSeconds && !approvedSameSource)
+                throw new InvalidOperationException("The recording and master require an explicitly approved source-clock association.");
+            if (domain == RecordingTimeDomain.ExplicitMusicalRetiming)
+                RecordingTimeMapping.ExplicitBeatRetiming(masterBeat, recordingPip, pipsPerMasterBeat, approvedUnverifiedPhase)
+                    .RecordingPip(new BeatState(0, 0, 0, 120, 4, 0, 0, 0, false), descriptor.Clock);
+            else if (domain != RecordingTimeDomain.OriginalSourceSeconds)
+                throw new ArgumentOutOfRangeException(nameof(domain));
+            windChannel = channels[0]; gustChannel = channels[1];
+            paletteChannel = channels[2]; sparkleChannel = channels[3];
+            sameSourceTimelineAcknowledged = approvedSameSource;
+            timeDomain = domain;
+            masterAnchorBeat = masterBeat;
+            recordingAnchorPip = recordingPip;
+            recordingPipsPerMasterBeat = pipsPerMasterBeat;
+            unverifiedPhaseRetimingApproved = approvedUnverifiedPhase;
+            recordingAsset = asset;
+            source = MotionSignalSource.ImportedRecording;
+            _warned = false;
+            LastRecordingPip = double.NaN;
+            if (isActiveAndEnabled) Acquire();
+        }
+
+        public void UseSyntheticPreview()
+        {
+            source = MotionSignalSource.SyntheticPreview;
+            recordingAsset = null;
+            Release();
+            HasSample = false;
+            IsRecordedSample = false;
+            LastRecordingPip = double.NaN;
+            _warned = false;
         }
 
         private void OnEnable()
@@ -117,6 +168,7 @@ namespace DanceFlow.Unity.Motion
             BeatState state = songClock.Current; // single Phase 1 source of musical truth
             HasSample = false;
             IsRecordedSample = false;
+            LastRecordingPip = double.NaN;
             for (int i = 0; i < _values.Length; i++) _values[i] = 0;
             if (source == MotionSignalSource.SyntheticPreview)
             {
@@ -137,6 +189,9 @@ namespace DanceFlow.Unity.Motion
                             : RecordingTimeMapping.ExplicitBeatRetiming(masterAnchorBeat, recordingAnchorPip,
                                   recordingPipsPerMasterBeat, unverifiedPhaseRetimingApproved);
                         double pip = mapping.RecordingPip(state, _recording.Clock);
+                        // Only publish an authoritative cursor while inside the finite capture.
+                        if (pip >= _recording.Clock.StartPip && pip < _recording.EndPipExclusive)
+                            LastRecordingPip = pip;
                         // The recording is finite: never wrap, repeat, or extrapolate.
                         for (int i = 0; i < 4; i++)
                             _values[i] = _axis[i] < 0 ? 0 :
@@ -183,6 +238,7 @@ namespace DanceFlow.Unity.Motion
             _active = null;
             Array.Clear(_values, 0, _values.Length);
             HasSample = IsRecordedSample = false;
+            LastRecordingPip = double.NaN;
             PublishGlobals();
         }
     }

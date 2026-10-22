@@ -16,5 +16,7 @@
     <Compile Include="../../Runtime/Motion/RecordingJson.cs" />
     <Compile Include="../../Runtime/Motion/RecordingBinaryCodec.cs" />
     <Compile Include="../../Runtime/Motion/RecordingTimeMapping.cs" />
+    <Compile Include="../../Runtime/Motion/RecordingGpuWindow.cs" />
+    <Compile Include="../../Runtime/Motion/RecordingSourceIdentity.cs" />
   </ItemGroup>
 </Project>

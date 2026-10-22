@@ -30,7 +30,20 @@ namespace DanceFlow.Unity.Samples.Editor
         [MenuItem("Tools/DanceFlow/Samples/Create Synthetic Motion Landscape")]
         public static void CreatePreviewLandscape() => Create(SongShowcasePreset.SyntheticPreview);
 
-        private static void Create(SongShowcasePreset preset)
+        [MenuItem("Tools/DanceFlow/Samples/Create Scene From Selected Song Profile")]
+        public static void CreateFromSelectedProfile()
+        {
+            var profile = Selection.activeObject as SongShowcaseProfile;
+            if (profile == null)
+                throw new InvalidOperationException("Select a DanceFlow Song Showcase Profile in the Project window.");
+            profile.ValidateForPlayback();
+            Create(profile.Song, profile);
+        }
+
+        [MenuItem("Tools/DanceFlow/Samples/Create Scene From Selected Song Profile", true)]
+        private static bool CanCreateFromSelectedProfile() => Selection.activeObject is SongShowcaseProfile;
+
+        private static void Create(SongShowcasePreset preset, SongShowcaseProfile profile = null)
         {
             if (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline == null)
                 throw new InvalidOperationException("Assign a Universal Render Pipeline asset before creating this demo.");
@@ -60,6 +73,7 @@ namespace DanceFlow.Unity.Samples.Editor
             gpuProps.ApplyModifiedPropertiesWithoutUndo();
             var demo = root.AddComponent<SongShowcaseBootstrap>();
             demo.Configure(preset, clock, audio, bus);
+            if (profile != null) demo.ConfigureProfile(profile);
             root.AddComponent<ProceduralLandscape>();
 
             var cameraObject = new GameObject("Main Camera");
