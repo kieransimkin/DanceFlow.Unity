@@ -1,0 +1,137 @@
+{
+  "schema": "stemlab.beat-timeline.v1",
+  "pips_per_beat": 64,
+  "source_audio": {
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "sample_rate": 8000,
+    "num_frames": 24000,
+    "num_channels": 1,
+    "duration_seconds": 3.0
+  },
+  "consensus_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "origin_beat": 2,
+  "review_status": "estimated",
+  "beats": [
+    {
+      "beat": 0,
+      "frame": 1000,
+      "source": "consensus",
+      "reference_frame": 1000
+    },
+    {
+      "beat": 1,
+      "frame": 5000,
+      "source": "consensus",
+      "reference_frame": 5000
+    },
+    {
+      "beat": 2,
+      "frame": 9000,
+      "source": "consensus",
+      "reference_frame": 9000
+    },
+    {
+      "beat": 3,
+      "frame": 14160,
+      "source": "consensus",
+      "reference_frame": 14160
+    },
+    {
+      "beat": 4,
+      "frame": 18080,
+      "source": "consensus",
+      "reference_frame": 18080
+    }
+  ],
+  "sync": {
+    "beat_1_index": 2,
+    "beat_1_source_frame": 9000,
+    "beat_1_start_seconds": 1.125,
+    "beat_1_start_pips": 144.0,
+    "beat_1_start_ticks": 36.0,
+    "sync_phase_offset_pips": -144.0,
+    "sync_phase_offset_ticks": -36.0,
+    "exact_phase_offset_pips": "-144",
+    "canonical_first_beat_pip": 0,
+    "pips_per_beat": 64
+  },
+  "beat_timeline": [
+    {
+      "beat": 0,
+      "source_frame": 1000,
+      "time_seconds": 0.125,
+      "pip": -128,
+      "consensus_reference_frame": 1000
+    },
+    {
+      "beat": 1,
+      "source_frame": 5000,
+      "time_seconds": 0.625,
+      "pip": -64,
+      "consensus_reference_frame": 5000
+    },
+    {
+      "beat": 2,
+      "source_frame": 9000,
+      "time_seconds": 1.125,
+      "pip": 0,
+      "consensus_reference_frame": 9000
+    },
+    {
+      "beat": 3,
+      "source_frame": 14160,
+      "time_seconds": 1.77,
+      "pip": 64,
+      "consensus_reference_frame": 14160
+    },
+    {
+      "beat": 4,
+      "source_frame": 18080,
+      "time_seconds": 2.26,
+      "pip": 128,
+      "consensus_reference_frame": 18080
+    }
+  ],
+  "tempo_segments": [
+    {
+      "from_beat": 0,
+      "to_beat": 1,
+      "start_frame": 1000,
+      "end_frame": 5000,
+      "start_seconds": 0.125,
+      "end_seconds": 0.625,
+      "bpm": 120.0,
+      "bpm_exact": "120"
+    },
+    {
+      "from_beat": 1,
+      "to_beat": 2,
+      "start_frame": 5000,
+      "end_frame": 9000,
+      "start_seconds": 0.625,
+      "end_seconds": 1.125,
+      "bpm": 120.0,
+      "bpm_exact": "120"
+    },
+    {
+      "from_beat": 2,
+      "to_beat": 3,
+      "start_frame": 9000,
+      "end_frame": 14160,
+      "start_seconds": 1.125,
+      "end_seconds": 1.77,
+      "bpm": 93.02325581395348,
+      "bpm_exact": "4000/43"
+    },
+    {
+      "from_beat": 3,
+      "to_beat": 4,
+      "start_frame": 14160,
+      "end_frame": 18080,
+      "start_seconds": 1.77,
+      "end_seconds": 2.26,
+      "bpm": 122.44897959183673,
+      "bpm_exact": "6000/49"
+    }
+  ]
+}

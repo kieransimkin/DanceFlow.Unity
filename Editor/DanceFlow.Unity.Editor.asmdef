@@ -1,0 +1,8 @@
+{
+  "name": "DanceFlow.Unity.Editor",
+  "rootNamespace": "DanceFlow.Unity.Editor",
+  "references": ["DanceFlow.Unity.Runtime"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "autoReferenced": true
+}

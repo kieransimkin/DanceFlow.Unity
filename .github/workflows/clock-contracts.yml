@@ -1,0 +1,36 @@
+name: Clock contract parity
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  managed-clock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Compile and run Unity-independent Phase 1 clock tests
+        run: dotnet run --project tools/clock-checks/ClockChecks.csproj --configuration Release
+      - name: Validate package metadata and source fixture
+        run: |
+          python -m json.tool package.json >/dev/null
+          python -m json.tool Tests/Fixtures/stemlab-frames-v1.json >/dev/null
+          python - <<'PY'
+          from pathlib import Path
+          import json
+          p = Path('package.json')
+          pkg = json.loads(p.read_text())
+          assert pkg['name'] == 'com.kieransimkin.danceflow.unity'
+          for f in Path('Runtime').rglob('*.asmdef'):
+              json.loads(f.read_text())
+          for f in Path('Editor').rglob('*.asmdef'):
+              json.loads(f.read_text())
+          for f in Path('Tests').rglob('*.asmdef'):
+              json.loads(f.read_text())
+          PY

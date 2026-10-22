@@ -1,10 +1,27 @@
 {
   "name": "com.kieransimkin.danceflow.unity",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "DanceFlow for Unity",
-  "description": "Planned Unity integration for DanceFlow musical clocks, shader timing, motion recordings and rigged animation. Initial documentation-only skeleton.",
+  "description": "DanceFlow musical beat clock and source-verified StemLab variable-BPM transport for Unity; shader, motion and rigging modules planned.",
   "unity": "6000.0",
-  "author": { "name": "Kieran Simkin", "url": "https://kieransimkin.co.uk/" },
-  "keywords": ["danceflow", "audio", "bpm", "animation", "shaders", "motion"],
-  "documentationUrl": "https://github.com/kieransimkin/DanceFlow.Unity"
+  "author": {
+    "name": "Kieran Simkin",
+    "url": "https://kieransimkin.co.uk/"
+  },
+  "keywords": [
+    "danceflow",
+    "audio",
+    "bpm",
+    "animation",
+    "shaders",
+    "motion"
+  ],
+  "documentationUrl": "https://github.com/kieransimkin/DanceFlow.Unity",
+  "samples": [
+    {
+      "displayName": "Beat Phase Cube",
+      "description": "Small CPU beat-phase demonstration using a Unity primitive.",
+      "path": "Samples~/ClockPhaseCube"
+    }
+  ]
 }

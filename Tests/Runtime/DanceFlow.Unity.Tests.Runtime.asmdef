@@ -1,0 +1,8 @@
+{
+  "name": "DanceFlow.Unity.Tests.Runtime",
+  "rootNamespace": "DanceFlow.Unity.Tests",
+  "references": ["DanceFlow.Unity.Runtime"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "includePlatforms": [],
+  "excludePlatforms": []
+}

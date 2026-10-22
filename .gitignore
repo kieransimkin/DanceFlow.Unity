@@ -12,3 +12,8 @@ Cache/
 *.csproj
 *.sln
 *.unitypackage
+
+# Standalone cross-platform clock compilation harness
+!tools/clock-checks/ClockChecks.csproj
+**/bin/
+**/obj/

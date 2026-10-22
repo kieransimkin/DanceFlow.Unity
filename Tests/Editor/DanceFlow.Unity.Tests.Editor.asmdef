@@ -1,0 +1,8 @@
+{
+  "name": "DanceFlow.Unity.Tests.Editor",
+  "rootNamespace": "DanceFlow.Unity.Tests",
+  "references": ["DanceFlow.Unity.Runtime", "DanceFlow.Unity.Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": []
+}
