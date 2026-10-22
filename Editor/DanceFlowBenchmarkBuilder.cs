@@ -23,10 +23,10 @@ namespace DanceFlow.Unity.Editor
         {
             if (GraphicsSettings.currentRenderPipeline == null)
                 throw new InvalidOperationException("Assign a URP asset before generating the benchmark scene.");
-            var normal = Shader.Find("Universal Render Pipeline/Lit");
+            var normal = Shader.Find("DanceFlow/URP/BeatPulseBaseline");
             var dance = Shader.Find("DanceFlow/URP/BeatPulseVertex");
             if (normal == null || dance == null || !normal.isSupported || !dance.isSupported)
-                throw new InvalidOperationException("Import the Shader Clock (URP) sample first and use a supported URP graphics API.");
+                throw new InvalidOperationException("Import the complete Shader Clock (URP) sample, including BeatPulseBaseline and BeatPulseVertex shaders, and use a supported URP graphics API.");
             Directory.CreateDirectory(Path.Combine(Application.dataPath, "DanceFlowBenchmark"));
             AssetDatabase.Refresh();
             var neutral = GetMaterial(Folder + "/Baseline.mat", normal);

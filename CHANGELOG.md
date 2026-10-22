@@ -1,6 +1,8 @@
 # Changelog
 
 ## 0.3.0 (unreleased) — Phase 2 shader clock implementation
+- Finalisation: use a matched URP Unlit baseline rather than URP Lit, and ensure all benchmark objects have unique visible XY positions at high counts.
+- Restore VSync and target frame rate after a local benchmark session; add matching-shader static contract checks.
 - Extended opt-in profiling with bounded raw observations, percentile summaries, GC/Unity video-memory counters and unavailable-value reporting.
 - Added a generated URP benchmark scene, six paired A/B/C/D/M scenarios, real GPU readback acceptance test, hardware runner scripts, Python analysis and manual GPU CI workflow.
 - Performance evidence is still pending real Unity Editor and GPU execution; synthetic analyser tests are not performance measurements.

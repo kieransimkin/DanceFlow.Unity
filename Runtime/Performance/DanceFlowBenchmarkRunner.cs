@@ -38,6 +38,9 @@ namespace DanceFlow.Unity.Performance
         private string _runId;
         private string _revision;
         private bool _ownsRunningBenchmark;
+        private bool _savedFrameRateSettings;
+        private int _previousVsync;
+        private int _previousFrameRate;
 
         public void Configure(DanceFlowClockBehaviour musicalClock, DanceFlowShaderBridge publisher,
                               DanceFlowShaderMetrics observer, Material normal, Material musical)
@@ -97,7 +100,19 @@ namespace DanceFlow.Unity.Performance
             clock.enabled = hasClock;
             bridge.SetBenchmarkPublisherTiming(resources);
             BuildGeometry(shaderEffect ? danceFlowMaterial : baselineMaterial);
-            // No frame cap or VSync while comparing GPU/CPU workloads. The report records this.
+            // Arrange the SAME number of visible spheres at all object counts. The old
+            // 32x32 repeated XY layout occluded everything beyond 1,024 objects.
+            var view = Camera.main;
+            if (view != null && view.orthographic)
+            {
+                int columns = Mathf.CeilToInt(Mathf.Sqrt(objectCount));
+                int rows = (objectCount + columns - 1) / columns;
+                view.orthographicSize = Mathf.Max(6f, 0.75f * (rows + 1));
+            }
+            // Avoid persisting benchmark-wide graphics settings into the Editor session.
+            _previousVsync = QualitySettings.vSyncCount;
+            _previousFrameRate = Application.targetFrameRate;
+            _savedFrameRateSettings = true;
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = -1;
             if (hasClock) clock.Transport.Play(); // synthetic/silent, no source-audio accuracy claim
@@ -127,11 +142,16 @@ namespace DanceFlow.Unity.Performance
             Mesh shared = temporary.GetComponent<MeshFilter>().sharedMesh;
             temporary.SetActive(false);
             // Keep the primitive mesh alive through the benchmark; it remains shared by all objects.
+            int columns = Mathf.CeilToInt(Mathf.Sqrt(objectCount));
+            int rows = (objectCount + columns - 1) / columns;
             for (int i = 0; i < objectCount; i++)
             {
                 var item = new GameObject("Benchmark sphere " + i);
-                item.transform.position = new Vector3((i % 32 - 15.5f) * 1.35f,
-                    ((i / 32) % 32 - 15.5f) * 1.35f, i / 1024 * 2.5f);
+                // Fixed spacing, no overlapping coordinates, one depth plane. Preserve
+                // identical placement in every paired baseline/instrumented variant.
+                item.transform.position = new Vector3(
+                    (i % columns - (columns - 1) * 0.5f) * 1.35f,
+                    (i / columns - (rows - 1) * 0.5f) * 1.35f, 0);
                 item.transform.localScale = Vector3.one * 0.9f;
                 item.AddComponent<MeshFilter>().sharedMesh = shared;
                 item.AddComponent<MeshRenderer>().sharedMaterial = material;
@@ -147,6 +167,11 @@ namespace DanceFlow.Unity.Performance
         }
         private void OnDestroy()
         {
+            if (_savedFrameRateSettings)
+            {
+                QualitySettings.vSyncCount = _previousVsync;
+                Application.targetFrameRate = _previousFrameRate;
+            }
             if (metrics != null) metrics.StopCapture();
             foreach (var obj in _createdObjects)
                 if (obj != null) Destroy(obj);

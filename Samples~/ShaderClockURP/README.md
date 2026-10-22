@@ -13,3 +13,14 @@ All package runtime code is render-pipeline agnostic. This sample shader uses UR
 The generated scene also includes `DanceFlowShaderMetrics` with all capture settings **off by default**. Enable timings in its inspector if desired; export manually from Window > DanceFlow > Shader Clock Diagnostics.
 
 For Shader Graph's File-mode Custom Function node, see `docs/03-shader-api.md` and `Runtime/GPU/DanceFlowClock.hlsl`.
+
+## Matched performance baseline
+
+`BeatPulseBaseline.shader` is installed alongside `BeatPulseVertex.shader`.
+Both use an identical URP Unlit pass and matching attributes/material parameters;
+the baseline does not read the DanceFlow shader clock or displace vertices.
+The benchmark scene generator requires **both** shaders. This prevents
+comparing Unity's more expensive URP Lit material against DanceFlow's Unlit
+material and misattributing the result to the musical clock. The measured
+shader delta can still include extra vertex displacement and screen-space
+coverage; this is a workload comparison, not a GPU instruction microbenchmark.

@@ -41,12 +41,23 @@ The sample is a separate Unity project dependency, **not** a mandatory package d
 
 | Variant | Musical clock | Shader globals | Effect shader | Resource telemetry |
 | --- | --- | --- | --- | --- |
-| `Baseline` (A) | Off | Off | Normal URP/Lit | Off |
-| `Clock` (B) | On | Off | Normal URP/Lit | Off |
-| `Globals` (C) | On | On | Normal URP/Lit | Off |
+| `Baseline` (A) | Off | Off | Matched URP Unlit baseline | Off |
+| `Clock` (B) | On | Off | Matched URP Unlit baseline | Off |
+| `Globals` (C) | On | On | Matched URP Unlit baseline | Off |
 | `Shader` (D) | On | On | DanceFlow vertex/fragment | Off |
-| `GlobalsMonitored` (C+M) | On | On | Normal URP/Lit | On |
+| `GlobalsMonitored` (C+M) | On | On | Matched URP Unlit baseline | On |
 | `ShaderMonitored` (D+M) | On | On | DanceFlow vertex/fragment | On |
+
+All six variants generate the same shared-mesh sphere layout and use shaders
+with the same URP Unlit pass, vertex inputs, material parameters and baseline
+fragment lighting expression. The baseline deliberately does **not** use Unity's
+URP Lit shader; that would confound comparisons with the DanceFlow Unlit effect.
+The DanceFlow variant additionally executes beat deformation/emission, so
+measured differences include geometry/overdraw changes as well as shader
+arithmetic. Sphere XY positions are unique for the full 32–16,384 object range;
+render framing scales with the square grid rather than hiding objects behind
+an overlapping 32×32 layout. Benchmark frame-rate and VSync settings are restored
+when the runner is destroyed, so an Editor run does not leak them into the project.
 
 All six variants generate the same shared-mesh sphere layout. They warm up **600** frames, collect **1,800** measured frames plus 6 flush frames for delayed GPU timings, and each run starts a fresh Player process. At least **three paired repeats** are required by default. The script rotates scenario order between repeats to reduce order/thermal bias; for stronger acceptance add repetitions and run at different object counts (e.g., 256, 1,024, 4,096).
 
@@ -55,6 +66,12 @@ All six variants generate the same shared-mesh sphere layout. They warm up **600
   -PlayerPath 'C:\Projects\DanceFlowBench\Build\DanceFlowBenchmark\DanceFlowBenchmark.exe' `
   -OutputDirectory '.\bench-results' -Repeats 3 -Objects 1024 -RequireGpu
 ```
+
+The report is **not** a pure ALU-only shader benchmark: the CPU Scene graph,
+per-object rendering, displacement, and material lighting remain part of the
+measured workload. Use the same object count, resolution, camera and GPU driver
+across paired variants; do not compare results from the older URP Lit baseline
+with this matched-baseline version.
 
 The script exports per-run `danceflow.unity.benchmark.v2` JSON and a `danceflow.unity.benchmark-analysis.v1` JSON. It exits nonzero if the Player fails, a report is missing, or strict GPU evidence is inconclusive. It **never replaces** a missing timing with zero.
 
