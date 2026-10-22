@@ -1,8 +1,8 @@
 {
   "name": "com.kieransimkin.danceflow.unity",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "DanceFlow for Unity",
-  "description": "DanceFlow musical beat clock and source-verified StemLab variable-BPM transport for Unity; shader, motion and rigging modules planned.",
+  "description": "DanceFlow authoritative BPM clock, source-verified variable tempo, and Unity GPU shader clock bridge; recording and rigging modules planned.",
   "unity": "6000.0",
   "author": {
     "name": "Kieran Simkin",
@@ -22,6 +22,11 @@
       "displayName": "Beat Phase Cube",
       "description": "Small CPU beat-phase demonstration using a Unity primitive.",
       "path": "Samples~/ClockPhaseCube"
+    },
+    {
+      "displayName": "Shader Clock (URP)",
+      "description": "Unity URP vertex deformation and fragment beat pulse with generated demonstration scene.",
+      "path": "Samples~/ShaderClockURP"
     }
   ]
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 (unreleased) — Phase 2 shader clock implementation
+- Added authoritative render-frame global shader bridge and deterministic Editor/offline publishing.
+- Added float-precision-safe C# encoding, HLSL helpers and Shader Graph File-mode custom functions.
+- Added opt-in URP vertex/fragment demo generator, shader diagnostics and bounded opt-in performance observations.
+- Added Unity NUnit fixtures, managed .NET parity tests and dependency-free shader contract checks.
+- Unity GPU compilation, licensed Editor tests and hardware benchmark evidence remain pending before release sign-off.
+
 ## 0.2.0 (unreleased) — Phase 1 managed musical transport
 - Implemented deterministic managed fixed-BPM and strict StemLab variable-tempo beat maps, audio identity validation and signed tick/pip phase.
 - Implemented manual/DSP clock, excerpt-aware transport with seek, pause, rate, loops, meter, epoch generation and bounded beat/bar/phrase event scheduling and inert source-time cues.

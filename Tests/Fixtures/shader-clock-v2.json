@@ -1,0 +1,61 @@
+{
+  "schema": "danceflow.unity.shader-clock-fixtures.v2",
+  "cases": [
+    {
+      "name": "negative_preroll",
+      "beat": -0.25,
+      "meter": 3,
+      "bar_origin": 0,
+      "beat_phase": 0.75,
+      "bar_phase": 0.9166666666666666
+    },
+    {
+      "name": "origin_offset",
+      "beat": 1.125,
+      "meter": 7,
+      "bar_origin": 0.25,
+      "beat_phase": 0.125,
+      "bar_phase": 0.125
+    },
+    {
+      "name": "beat_half",
+      "beat": 0.5,
+      "meter": 4,
+      "bar_origin": 0,
+      "beat_phase": 0.5,
+      "bar_phase": 0.125
+    },
+    {
+      "name": "beat_exact",
+      "beat": 4,
+      "meter": 4,
+      "bar_origin": 0,
+      "beat_phase": 0,
+      "bar_phase": 0.0
+    },
+    {
+      "name": "large_positive",
+      "beat": 1000000021.125,
+      "meter": 4,
+      "bar_origin": 0,
+      "beat_phase": 0.125,
+      "bar_phase": 0.28125
+    },
+    {
+      "name": "large_negative",
+      "beat": -150005.125,
+      "meter": 5,
+      "bar_origin": -0.25,
+      "beat_phase": 0.875,
+      "bar_phase": 0.02500000000145519
+    },
+    {
+      "name": "nondivisible_cycle",
+      "beat": 65538.25,
+      "meter": 4,
+      "bar_origin": 0,
+      "beat_phase": 0.25,
+      "bar_phase": 0.5625
+    }
+  ]
+}

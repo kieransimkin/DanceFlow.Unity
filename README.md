@@ -1,10 +1,10 @@
 # DanceFlow for Unity
 
-**Status: Phase 1 managed musical clock implemented; shader, recording and rigging phases remain planned.**
+**Status: Phase 1 clock and Phase 2 shader bridge source implemented; Unity GPU/device acceptance pending.**
 
 UPM ID: `com.kieransimkin.danceflow.unity` · Unity 6+ (`6000.0` in `package.json`).
 
-[Comprehensive implementation plan](docs/00-implementation-plan.md) · [Upstream compatibility matrix](docs/01-compatibility-matrix.md) · [Clock API / usage](docs/02-clock-contract.md)
+[Comprehensive implementation plan](docs/00-implementation-plan.md) · [Upstream compatibility matrix](docs/01-compatibility-matrix.md) · [Clock API / usage](docs/02-clock-contract.md) · [Phase 2 shader API](docs/03-shader-api.md)
 
 ## Implemented Phase 1
 
@@ -45,3 +45,11 @@ dotnet run --project tools/clock-checks/ClockChecks.csproj --configuration Relea
 ```
 
 **Limitations:** The standalone managed tests do not prove Unity editor compilation, real-device audio latency or source-excerpt audio looping. Unity's minimal AudioSource adapter is for straight scheduled playback; rate changes and looping of the actual audio track need a later dedicated audio driver. Captured recordings, shader globals, and rigging belong to Phases 2–4.
+
+## Phase 2 — GPU shader clock (source implementation)
+
+Add `DanceFlowShaderBridge` alongside the Phase 1 `DanceFlowClockBehaviour` and assign the clock field. One active bridge publishes a render-frame snapshot to shared shader globals (`_DanceFlow_BPM`, `_DanceFlow_BeatPhase`, `_DanceFlow_BarPhase`, `_DanceFlow_BeatIndexHiLo`, etc.). Include `Runtime/GPU/DanceFlowClock.hlsl` for precision-safe beat cycles and Shader Graph File-mode functions. `ShaderClockMath` is pure managed C# and tested by the standalone clock harness.
+
+Import the optional **Shader Clock (URP)** sample and choose **Tools > DanceFlow > Create URP Shader Clock Demo Scene** for a working vertex and fragment shader demo (generated within the Unity Editor). For opt-in frame/CPU/resource metrics use `DanceFlowShaderMetrics` and **Window > DanceFlow > Shader Clock Diagnostics**. The metrics report honestly distinguishes timings, graphics memory allocations and unavailable utilisation counters.
+
+`python tools/shader-checks/check_shader_contract.py` performs static shader API, fixture and GUID validation. This does **not** compile Unity shaders. Licensed Unity Test Runner, URP GPU rendering and hardware benchmark results are still required for release acceptance. See [03-shader-api.md](docs/03-shader-api.md) for details and caveats.

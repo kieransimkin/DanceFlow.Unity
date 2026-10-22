@@ -1,0 +1,66 @@
+using DanceFlow.Unity.GPU;
+using UnityEditor;
+using UnityEngine;
+
+namespace DanceFlow.Unity.Editor
+{
+    public sealed class ShaderClockDiagnosticsWindow : EditorWindow
+    {
+        private DanceFlowShaderBridge _bridge;
+        private DanceFlowShaderMetrics _metrics;
+        private double _seekSeconds;
+
+        [MenuItem("Window/DanceFlow/Shader Clock Diagnostics")]
+        public static void Open() => GetWindow<ShaderClockDiagnosticsWindow>("Shader Clock");
+
+        private void OnGUI()
+        {
+            _bridge = (DanceFlowShaderBridge)EditorGUILayout.ObjectField("Global bridge", _bridge,
+                typeof(DanceFlowShaderBridge), true);
+            if (_bridge == null) _bridge = DanceFlowShaderBridge.Active;
+            _metrics = (DanceFlowShaderMetrics)EditorGUILayout.ObjectField("Optional metrics", _metrics,
+                typeof(DanceFlowShaderMetrics), true);
+            if (_bridge == null)
+            {
+                EditorGUILayout.HelpBox("Add exactly one enabled DanceFlowShaderBridge to your scene.", MessageType.Info);
+                return;
+            }
+            if (_bridge.HasPublishedState)
+            {
+                var s = _bridge.LastSample;
+                EditorGUILayout.LabelField("BPM", s.Bpm.ToString("F4"));
+                EditorGUILayout.LabelField("Beat phase", s.BeatPhase.ToString("F6"));
+                EditorGUILayout.LabelField("Bar phase", s.BarPhase.ToString("F6"));
+                EditorGUILayout.LabelField("Tick / pip phase", s.TickPhase.ToString("F5") + " / " + s.PipPhase.ToString("F5"));
+                EditorGUILayout.LabelField("Beat index hi / low", s.BeatIndexHigh + " / " + s.BeatIndexLow);
+                EditorGUILayout.LabelField("Song seconds (hi+low)", (s.SourceSecondsHigh + (double)s.SourceSecondsLow).ToString("F6"));
+                EditorGUILayout.LabelField("Published snapshots", _bridge.PublishedStates.ToString());
+                EditorGUILayout.LabelField("Publisher mean CPU", _bridge.PublisherMeasuredCount > 0 ?
+                    _bridge.PublisherAverageMicroseconds.ToString("F3") + " μs" : "not measured");
+            }
+            _seekSeconds = EditorGUILayout.DoubleField("Preview source seconds", _seekSeconds);
+            using (new EditorGUI.DisabledScope(!Application.isPlaying))
+            {
+                if (GUILayout.Button("Publish at source seconds (manual override)"))
+                {
+                    try { _bridge.PublishAtSourceSeconds(_seekSeconds); }
+                    catch (System.Exception e) { Debug.LogException(e); }
+                }
+                if (GUILayout.Button("Release manual override")) _bridge.ReleaseManualOverride();
+            }
+            if (_metrics != null)
+            {
+                EditorGUILayout.LabelField("CPU frame", _metrics.HasCpuTiming ?
+                    _metrics.MeanCpuFrameMs.ToString("F3") + " ms" : "unavailable");
+                EditorGUILayout.LabelField("GPU frame", _metrics.HasGpuTiming ?
+                    _metrics.MeanGpuFrameMs.ToString("F3") + " ms" : "unavailable");
+                if (GUILayout.Button("Export metrics JSON (explicit)"))
+                {
+                    var path = EditorUtility.SaveFilePanel("Export DanceFlow shader metrics", "", "shader-metrics.json", "json");
+                    if (!string.IsNullOrEmpty(path)) _metrics.ExportToJson(path);
+                }
+            }
+            if (EditorApplication.isPlaying) Repaint();
+        }
+    }
+}

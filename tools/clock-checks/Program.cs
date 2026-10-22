@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json.Nodes;
 using DanceFlow.Unity.Clock;
+using DanceFlow.Unity.GPU;
 
 internal static class Program
 {
@@ -130,6 +131,36 @@ internal static class Program
         Fails(() => StemLabBeatTimeline.Parse(Change(json, d => d["beats"]![1]!["source"] = "manual"), identity), "Manual source with detector reference rejects");
         Fails(() => StemLabBeatTimeline.Parse("{\"schema\":\"x\",\"schema\":\"x\"}", identity), "Duplicate JSON keys reject");
         Fails(() => StemLabBeatTimeline.Parse(json.Replace("24000", "NaN"), identity), "NaN JSON rejects");
-        Console.WriteLine($"DanceFlow Phase 1 clock checks passed ({_passed} assertions).");
+        // Phase 2: GPU transport data must agree with the same double-precision map.
+        var gpuAtHalf = ShaderClockMath.Pack(new BeatState(11580.0/8000, 0.5, 0.5,
+            map.EvaluateFrame(11580).Bpm, 4, 0, 10, 0, true));
+        Close(gpuAtHalf.BeatPhase, 0.5, "GPU half-beat phase");
+        Close(gpuAtHalf.BarPhase, 0.125, "GPU quarter-note bar phase");
+        Close(gpuAtHalf.Bpm, 60.0 * 8000 / 5160, "GPU local BPM", 1e-4);
+        Close(gpuAtHalf.PipPhase, 0, "GPU native pip phase");
+        var signedGpu = ShaderClockMath.Pack(signed);
+        Expect(signedGpu.BeatIndexHigh == -1 && signedGpu.BeatIndexLow == 65535,
+            "Shader BeatIndexHiLo encodes negative beat indices");
+        Close(signedGpu.BeatPhase, 0.75, "GPU signed beat phase", 1e-7);
+        var sourceLoopGpu = ShaderClockMath.Pack(looped, ShaderBeatDomain.Source);
+        var continuousLoopGpu = ShaderClockMath.Pack(looped, ShaderBeatDomain.Continuous);
+        Expect(Math.Abs(sourceLoopGpu.BeatRemainder256 - continuousLoopGpu.BeatRemainder256) > 0.5,
+            "GPU source and loop-continuous domains are independent");
+        foreach (double beat in new[] {-150005.125, -1.25, 0.125, 1123403.75, 1000000021.125})
+        {
+            var state = new BeatState(beat/2, beat, beat, 120, 3, -0.25, 17, 0, true);
+            var packed = ShaderClockMath.Pack(state);
+            foreach (int period in new[] {1, 2, 3, 4, 5, 7, 16, 32, 64, 255, 256})
+            {
+                double reference = ShaderClockMath.CyclePhase(beat, period);
+                double gpu = ShaderClockMath.SimulateGpuCyclePhase(packed, period);
+                double distance = Math.Abs(reference - gpu);
+                Expect(Math.Min(distance, 1.0 - distance) <= 5e-5,
+                    $"GPU float cycle parity at {beat} / {period}");
+            }
+        }
+        Fails(() => ShaderClockMath.CyclePhase(42, 257), "GPU cycle period bound");
+        Fails(() => ShaderClockMath.SplitCounter(1L << 45, out _, out _), "GPU high integer overflow guard");
+        Console.WriteLine($"DanceFlow Phases 1–2 clock/shader checks passed ({_passed} assertions).");
     }
 }
