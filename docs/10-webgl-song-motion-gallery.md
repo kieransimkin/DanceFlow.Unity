@@ -28,10 +28,13 @@ The generated Unity project has `Assets/StreamingAssets/Songs/catalogue.json`,
 `rudiments.json`, three verified MP3 derivatives, and three source-bound `.signals.json`
 files. Large media are **not included in the UPM or committed to this repository**.
 `fetch_songs.py` downloads them during the GitHub Actions WebGL build, refusing
-hash/size mismatches. GitHub Pages receives those assets only after the WebGL
-player and public asset checks pass. An explicit post-build copy makes the
-StreamingAssets URL files available at `/kandi/StreamingAssets/Songs/` even if
-Unity's WebGL exporter packs its StreamingAssets into the player data bundle.
+hash/size mismatches. Unity's WebGL exporter places the verified files in
+`build/WebGL/KandiBoom/StreamingAssets/Songs/` as ordinary HTTP assets. GitHub
+Pages publishes them at `/kandi/StreamingAssets/Songs/` after validating the
+WebGL payload and checking source MP3 SHA-256s against the song catalogue.
+**Do not re-copy assets into Unity's build directory after GameCI runs**:
+that output may be root-owned and is already complete. Only the Pages output
+folder is created and populated by the publishing script.
 
 ## Sources and provenance
 

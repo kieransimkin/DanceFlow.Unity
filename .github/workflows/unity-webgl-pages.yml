@@ -78,10 +78,10 @@ jobs:
           buildName: KandiBoom
       - name: Validate WASM, data payload, Pages portal and original source receipt
         run: |
-          # WebGL may pack StreamingAssets inside the Unity data payload. Serve
-          # the exact same verified bytes as ordinary same-origin HTTP files.
-          mkdir -p build/WebGL/KandiBoom/StreamingAssets/Songs
-          cp -a WebGLDemo/Assets/StreamingAssets/Songs/. build/WebGL/KandiBoom/StreamingAssets/Songs/
+          # Unity already exported StreamingAssets/Songs into this WebGL build.
+          # GameCI can leave the build owned by root; do NOT attempt to copy
+          # the same files over themselves. The publisher checks their SHA-256
+          # before creating a separate, writable GitHub Pages output folder.
           python tools/kandi-webgl/publish_pages.py \
             --build build/WebGL/KandiBoom \
             --output _pages \

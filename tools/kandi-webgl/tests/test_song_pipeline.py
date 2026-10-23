@@ -194,11 +194,27 @@ class SongSourceTests(unittest.TestCase):
                     ('third','star_lights_glow_mystery_liquid_kick'))
             ]}
             (songs_dir/'catalogue.json').write_text(json.dumps(catalogue))
-            output = publish_pages.create_pages(build, root/'deployable', receipt, require_songs=True)
+            # Unity's Docker build can leave StreamingAssets owned by root.
+            # Pages publishing must only READ the exported files, not overwrite
+            # them or depend on a post-build copy performed as the runner user.
+            source_mode = songs_dir.stat().st_mode & 0o777
+            songs_dir.chmod(0o555)
+            try:
+                output = publish_pages.create_pages(build, root/'deployable', receipt, require_songs=True)
+            finally:
+                songs_dir.chmod(source_mode)
             self.assertTrue((output/'kandi'/'StreamingAssets'/'Songs'/'first.mp3').is_file())
+            self.assertEqual(hashlib.sha256((songs_dir/'first.mp3').read_bytes()).hexdigest(), sha)
             (songs_dir/'second.mp3').write_bytes(b'altered!')
             with self.assertRaisesRegex(ValueError, 'SHA-256'):
                 publish_pages.create_pages(build, root/'corrupt', receipt, require_songs=True)
+
+    def test_ci_publishes_unity_export_without_writing_into_it(self):
+        workflow = (HERE.parents[1]/'.github'/'workflows'/'unity-webgl-pages.yml').read_text()
+        self.assertNotIn('cp -a WebGLDemo/Assets/StreamingAssets/Songs/.', workflow)
+        self.assertNotIn('mkdir -p build/WebGL/KandiBoom/StreamingAssets/Songs', workflow)
+        self.assertIn('python tools/kandi-webgl/publish_pages.py', workflow)
+        self.assertIn('--require-songs', workflow)
 
     def test_scene_uses_one_clock_and_property_matrix(self):
         src = (HERE/'UnityProject'/'Assets'/'Editor'/'KandiBoomWebGLBuild.cs').read_text()
