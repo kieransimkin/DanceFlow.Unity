@@ -52,6 +52,17 @@ jobs:
         run: python tools/kandi-webgl/prepare_project.py --repo . --output WebGLDemo
       - name: Fetch ORIGINAL DanceRudiments Kandi Boom FBX + four PBR textures
         run: python tools/kandi-webgl/fetch_assets.py --output WebGLDemo/Assets/KandiBoomSource
+      - name: Ensure FFmpeg is available for real MP3 envelope analysis
+        shell: bash
+        run: |
+          # GitHub's hosted runner image may not include ffmpeg on PATH.
+          # Install a decoder only when absent; never skip source verification.
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg
+          fi
+          command -v ffmpeg
+          ffmpeg -hide_banner -version | sed -n '1p'
       - name: Prepare verified song audio and source-bound multi-band rudiments
         run: |
           command -v ffmpeg
