@@ -1,6 +1,6 @@
 {
   "name": "com.kieransimkin.danceflow.unity",
-  "version": "0.5.0-preview.1",
+  "version": "0.5.0-preview.2",
   "displayName": "DanceFlow for Unity",
   "description": "DanceFlow Unity musical clock, source-bound motion recordings, GPU modulation and preview Rigify/custom skeleton playback via Playables.",
   "unity": "6000.0",
