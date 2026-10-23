@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 using DanceFlow.Unity.Clock;
 using DanceFlow.Unity.GPU;
 using NUnit.Framework;
@@ -44,7 +45,9 @@ namespace DanceFlow.Unity.Tests
                 camera.backgroundColor = Color.black;
                 camera.enabled = false;
                 var bridge = host.AddComponent<DanceFlowShaderBridge>();
-                yield return new WaitForEndOfFrame();
+                // Editor batch mode does not resume WaitForEndOfFrame. Rendering below
+                // is an explicit synchronous URP request, so one update is sufficient.
+                yield return null;
 
                 var request = new RenderPipeline.StandardRequest { destination = rt };
                 if (!RenderPipeline.SupportsRenderRequest(camera, request))
@@ -59,9 +62,11 @@ namespace DanceFlow.Unity.Tests
                 transport.Play();
                 bridge.Publish(transport.EvaluateSourceSeconds(0));
                 Capture(camera, request, rt, readback, out float bright, out int big);
+                SaveEvidence(readback, "beat-on");
                 // Seek to halfway through the beat: the same shader becomes dimmer and contracts.
                 bridge.Publish(transport.EvaluateSourceSeconds(0.25));
                 Capture(camera, request, rt, readback, out float dim, out int small);
+                SaveEvidence(readback, "beat-half");
 
                 Assert.Greater(bright, dim + 0.025f,
                     "Fragment emission must follow GPU-visible BeatPulse across seeks.");
@@ -79,6 +84,9 @@ namespace DanceFlow.Unity.Tests
                 Capture(camera, request, rt, readback, out float variableDim, out _);
                 Assert.Greater(variableBright, variableDim + 0.025f,
                     "Fragment shader must follow piecewise variable-tempo beat phase.");
+                Debug.Log($"DanceFlow GPU readback: {SystemInfo.graphicsDeviceName}; " +
+                    $"brightness {bright:F4}/{dim:F4}; silhouette {big}/{small}; " +
+                    $"variable-tempo brightness {variableBright:F4}/{variableDim:F4}");
             }
             finally
             {
@@ -91,6 +99,14 @@ namespace DanceFlow.Unity.Tests
                 UnityEngine.Object.DestroyImmediate(cameraObject);
                 UnityEngine.Object.DestroyImmediate(host);
             }
+        }
+
+        private static void SaveEvidence(Texture2D output, string name)
+        {
+            string directory = Environment.GetEnvironmentVariable("DANCEFLOW_TEST_CAPTURE_DIR");
+            if (string.IsNullOrEmpty(directory)) return;
+            Directory.CreateDirectory(directory);
+            File.WriteAllBytes(Path.Combine(directory, name + ".png"), output.EncodeToPNG());
         }
 
         private static void Capture(Camera camera, RenderPipeline.StandardRequest request,

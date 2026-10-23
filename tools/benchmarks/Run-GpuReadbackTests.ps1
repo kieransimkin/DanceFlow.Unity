@@ -12,7 +12,7 @@ $dest = [IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Force -Path $dest | Out-Null
 $testResults = Join-Path $dest 'unity-gpu-readback-results.xml'
 $logFile = Join-Path $dest 'unity-gpu-readback.log'
-& $unity -batchmode -quit -projectPath $project `
+& $unity -batchmode -projectPath $project `
     -runTests -testPlatform PlayMode -testFilter 'GpuShaderReadbackTests' `
     -testResults $testResults -logFile $logFile
 if ($LASTEXITCODE -ne 0) { throw "Unity GPU test process failed: exit $LASTEXITCODE; read $logFile" }
