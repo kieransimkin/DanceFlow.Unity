@@ -4,11 +4,11 @@ The root Git package was tested in a fresh consumer built from the installed Uni
 
 | Gate | Observed result |
 | --- | --- |
-| Native EditMode suite | 22 passed; no failures, skips or inconclusive cases |
+| Native EditMode suite | 23 passed including the generated-rig integration regression; no failures, skips or inconclusive cases |
 | Native PlayMode suite | Five passed, including GPU framebuffer readback and fixed/variable-tempo seeks |
 | Generated synthetic rig scene | Saved and reopened with persistent meshes, materials, avatar and recording/profile bindings |
 | Direct and Playables skinning | Actual baked vertex positions changed by maxima of 0.3432 and 0.3323 Unity units respectively between source times 0.1 and 0.6 seconds |
-| Recording exhaustion | Both players stopped sampling beyond the 1,024-pip finite capture; no implicit wrap |
+| Recording exhaustion | Both players stopped sampling beyond the 1,024-pip finite capture; no implicit wrap. Baked vertices returned to rest within 1.2×10⁻⁷ units for direct transforms and exactly zero measured residue for Playables |
 
 The consumer's lock identified the complete root Git package, not selected copied runtime folders. The first import exposed an undeclared Particle System module and failed compilation. The package now declares its Animation, Audio, IMGUI, JSON Serialization and Particle System runtime dependencies. The remaining template dependencies do not serve as an implicit package contract.
 
@@ -32,7 +32,7 @@ Use a disposable Unity 6 URP consumer with the whole pinned root Git dependency 
 
 Run `tools/benchmarks/Run-GpuReadbackTests.ps1` with graphics enabled for the required GPU case. Its XML check rejects absent, skipped and inconclusive cases. Do not combine `-runTests` with `-quit`. The GPU case submits synchronous render requests after a normal update; it does not wait on the unsupported Editor batch-mode end-of-frame yield. See [Unity command-line test arguments](https://docs.unity.com/en-us/engine/7000.0/manual/programming-environment/test-framework-introduction/reference-command-line), [batch coroutine compatibility](https://docs.unity.cn/Manual/CLIBatchmodeCoroutines.html) and [generic-avatar root naming](https://docs.unity3d.com/ja/current/ScriptReference/AvatarBuilder.BuildGenericAvatar.html).
 
-The passing core/GPU candidate was `f5caf27cb1bec4dda60bcff4ca80eaadca8b4398`; the tested rig generator is in `fbbd7d8`. The retained original fixture test is promoted as `RigSampleIntegrationTests` in this preview. Subsequent full-candidate verification is recorded in its release/PR checks.
+The passing core/GPU candidate was `f5caf27cb1bec4dda60bcff4ca80eaadca8b4398`; the tested rig generator is in `fbbd7d8`. The combined pinned `bea455e` consumer passed 23 Editor and five PlayMode cases with clean final process exits. A focused additional native case verified actual rest vertices after recording exhaustion; that assertion is retained in `RigSampleIntegrationTests`. Earlier ten-minute import/shutdown timeouts are retained separately from the passing runs; bounded fifteen-minute process allowances gave the final Editor and PlayMode runs sufficient headroom. Subsequent source verification is recorded in its release/PR checks.
 
 ## Outstanding qualification
 

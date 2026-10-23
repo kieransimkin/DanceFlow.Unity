@@ -70,6 +70,15 @@ public sealed class RigSampleIntegrationTests
             Assert.IsFalse(player.HasPoseThisFrame, "Finite recordings must end without wrapping.");
             Assert.Greater(player.LastAbsolutePip, 1023);
         }
+        foreach (var skin in skins)
+        {
+            var neutral = skin.sharedMesh.vertices;
+            var ended = Baked(skin);
+            float residue = 0;
+            for (int v = 0; v < ended.Length; v++) residue = Mathf.Max(residue, (ended[v] - neutral[v]).magnitude);
+            Debug.Log("Native rig end-state residue " + skin.transform.parent.name + ": " + residue);
+            Assert.Less(residue, 0.0001f, "Exhausted synthetic rigs must return actual skinned vertices to rest.");
+        }
         yield return new ExitPlayMode();
     }
 
