@@ -133,7 +133,19 @@ class ProjectAndDeployTests(unittest.TestCase):
                 (build / "Build" / name).write_bytes(b"local test payload")
             pages = publish_pages.create_pages(build, root / "pages", receipt)
             self.assertTrue((pages / "kandi" / "Build" / "KandiBoom.wasm").exists())
-            self.assertIn("SYNTHETIC", (pages / "index.html").read_text().upper())
+            # The landing page now lists real songs and correctly labels
+            # unmatched catalogue rudiments as motion previews.
+            landing = (pages / "index.html").read_text().upper()
+            for phrase in (
+                "ARCADIANS",
+                "THE TRUTH IS A VIRUS",
+                "STAR LIGHTS GLOW",
+                "TWELVE INDEPENDENTLY ADJUSTABLE",
+                "MOTION PREVIEW",
+                "CONFIRMED SONG MATCHING",
+            ):
+                with self.subTest(phrase=phrase):
+                    self.assertIn(phrase, landing)
             self.assertTrue((pages / ".nojekyll").exists())
 
 if __name__ == "__main__":
