@@ -27,7 +27,8 @@ class WebGLUnityContractTests(unittest.TestCase):
             self.assertIn(text, motion)
         self.assertIn('SYNTHETIC BEAT PREVIEW', overlay)
         self.assertNotIn('Time.deltaTime', motion)
-        self.assertIn('clock.Transport.Pause()', overlay)
+        self.assertIn('songs.PlayPause()', overlay)
+        self.assertIn('songs.Seek(next)', overlay)
 
     def test_build_requires_real_unity_artifacts(self):
         root = TOOLS.parents[1]

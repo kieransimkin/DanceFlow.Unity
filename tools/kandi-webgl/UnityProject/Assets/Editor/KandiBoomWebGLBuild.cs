@@ -299,15 +299,19 @@ namespace DanceFlow.Unity.WebGLDemo.Editor
             character.transform.localScale *= 2.4f / height;
             character.transform.position += Vector3.up * (0.4f - skins[0].bounds.min.y);
 
-            var systems = new GameObject("DanceFlow — single authoritative clock");
+            var systems = new GameObject("DanceFlow — single authoritative song clock");
+            var audio = systems.AddComponent<AudioSource>();
+            audio.playOnAwake = false;
+            audio.loop = false;
+            audio.spatialBlend = 0;
             var songClock = systems.AddComponent<DanceFlowClockBehaviour>();
             var clockShader = systems.AddComponent<DanceFlowShaderBridge>();
             clockShader.SetClock(songClock);
-            var signals = systems.AddComponent<MotionSignalBus>();
-            signals.Configure(songClock);
+            var songPlayer = systems.AddComponent<KandiBoomSongPlayer>();
+            songPlayer.Configure(songClock, audio);
+            var motionMatrix = systems.AddComponent<KandiBoomMotionMatrix>();
+            var controls = systems.AddComponent<KandiBoomControls>();
             systems.AddComponent<ProceduralLandscape>();
-            systems.AddComponent<KandiBoomControls>().Configure(songClock, 120);
-            systems.AddComponent<KandiBoomBeatDance>().Configure(songClock, character.transform);
             var camera = new GameObject("Main Camera").AddComponent<Camera>();
             camera.tag = "MainCamera";
             camera.nearClipPlane = 0.1f;
@@ -326,6 +330,8 @@ namespace DanceFlow.Unity.WebGLDemo.Editor
             fill.range = 12;
             fill.intensity = 6;
             fill.color = new Color(0.84f, 0.39f, 0.84f);
+            motionMatrix.Configure(songPlayer, songClock, character.transform, fill);
+            controls.Configure(songClock, songPlayer, motionMatrix);
             var landscape = systems.GetComponent<ProceduralLandscape>();
             Shader landscapeShader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/DanceFlowLandscape/MotionLandscape.shader");
             if (landscapeShader == null) throw new IOException("Beat-reactive landscape shader not imported");

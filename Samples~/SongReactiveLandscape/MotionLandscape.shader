@@ -25,6 +25,11 @@ Shader "DanceFlow/URP/MotionLandscape"
             #include "Packages/com.kieransimkin.danceflow.unity/Runtime/GPU/DanceFlowClock.hlsl"
             #include "Packages/com.kieransimkin.danceflow.unity/Runtime/GPU/DanceFlowMotionSignals.hlsl"
 
+            // Only Kandi WebGL opts into property-specific extra routing.
+            // Other SongReactiveLandscape users retain the original 4-slot behaviour.
+            float4 _DanceFlow_SceneMotion;
+            float _DanceFlow_WebGLMotionMatrix;
+
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 float _Mode;
@@ -64,29 +69,36 @@ Shader "DanceFlow/URP/MotionLandscape"
                 float3 world = TransformObjectToWorld(input.positionOS);
                 float valid = _DanceFlow_MotionAvailable * DF_ClockValid();
                 float4 motion = _DanceFlow_MotionA * valid;
+                float4 sceneMotion = _DanceFlow_SceneMotion * valid;
+                float routed = saturate(_DanceFlow_WebGLMotionMatrix);
+                float grassMotion = motion.x;
+                float treeMotion = lerp(motion.x, motion.y, routed);
+                float motionWind = _Mode > 1.5 ? treeMotion : grassMotion;
+                float terrainMotion = lerp(motion.x, sceneMotion.x, routed);
+                float warpMotion = lerp(motion.y, sceneMotion.y, routed);
                 float beatPulse = _DanceFlow_BeatPulse * DF_ClockValid();
                 float phase = _DanceFlow_BeatPhase * 6.28318530718;
-                float gust = 0.35 + 0.4 * abs(motion.y) + 0.25 * abs(motion.x);
+                float gust = 0.35 + 0.4 * abs(motionWind) + 0.25 * abs(motion.y);
                 float windField = sin(world.x * 0.18 + world.z * 0.13 + phase + input.bend.y * 4.3);
                 float sway = input.bend.x * _WindGain * gust * windField;
 
                 if (_Mode > 0.5 && _Mode < 3.5)
                 {
-                    world.x += sway + input.bend.x * motion.x * 0.22 * _WindGain;
-                    world.z += input.bend.x * (0.6 * sway + motion.y * 0.12 * _WindGain);
+                    world.x += sway + input.bend.x * motionWind * 0.22 * _WindGain;
+                    world.z += input.bend.x * (0.6 * sway + motionWind * 0.12 * _WindGain);
                 }
                 // Radial terrain ripples (strength tied to measured channels when supplied).
                 if (_Mode < 0.5)
                 {
                     float r = length(world.xz);
-                    world.y += _WarpGain * (0.08 + abs(motion.x) * 0.17) *
+                    world.y += _WarpGain * (0.08 + abs(terrainMotion) * 0.17) *
                                sin(r * 0.56 - phase + _DanceFlow_BarPhase * 2.2);
                 }
                 // Music-warped abstract tower. Distinct radial and torsional modes.
                 if (_Mode > 3.5 && _Mode < 4.5)
                 {
-                    float theta = world.y * 0.72 + phase + motion.z * 2.5;
-                    float radius = _WarpGain * (0.16 + beatPulse * 0.7 + abs(motion.y) * 0.35);
+                    float theta = world.y * 0.72 + phase + (motion.z + warpMotion) * 1.3;
+                    float radius = _WarpGain * (0.16 + beatPulse * 0.7 + abs(warpMotion) * 0.35);
                     world.xz += float2(cos(theta), sin(theta)) * radius;
                     world.y += _WarpGain * sin(theta * 2.2) * 0.2;
                 }

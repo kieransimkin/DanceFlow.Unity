@@ -108,7 +108,8 @@ class ProjectAndDeployTests(unittest.TestCase):
             self.assertEqual(manifest["dependencies"]["com.unity.render-pipelines.universal"],
                              prepare_project.URP_VERSION)
             # Keep the generated CI project capable of compiling the runtime.
-            for module in ("audio", "animation", "particlesystem"):
+            for module in ("audio", "animation", "particlesystem", "jsonserialize",
+                           "unitywebrequest", "unitywebrequestaudio"):
                 with self.subTest(module=module):
                     self.assertEqual(
                         manifest["dependencies"][f"com.unity.modules.{module}"],

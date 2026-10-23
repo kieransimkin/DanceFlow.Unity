@@ -1,0 +1,63 @@
+{
+  "schema": "danceflow.unity.webgl-song-lock.v1",
+  "stemlab_commit": "e0a3d270608df7a47cd04c6e30bcd0b4f566b157",
+  "dancerudiments_commit": "7ee77238b161e4d891797aab0684edcbf9f74cfc",
+  "pattern_pack": {
+    "path": "python/dancerudiments_authoring/packs/initial.json",
+    "bytes": 770277,
+    "git_blob_sha1": "70a5580a131888c0c9b21f2234259ead343d3799"
+  },
+  "patterns": [
+    "groove_b_played",
+    "groove_b_grid",
+    "lfo_morph",
+    "groove_a_played",
+    "lfo_breathe",
+    "lfo_flower",
+    "rhythm_euclid_5_12",
+    "rudiment_six_stroke",
+    "ease_overshoot",
+    "rhythm_half_time"
+  ],
+  "songs": [
+    {
+      "id": "arcadians",
+      "title": "Arcadians",
+      "artist": "Kieran Simkin",
+      "path": "examples/arcadians/Arcadians - 320kbps.mp3",
+      "bytes": 11708403,
+      "sha256": "5a3d17d8b5b27d62a6bb9fa1f654c403db0341da826d650cc282dfa5758ee6de",
+      "bpm": 145.0,
+      "tempo_status": "artist_confirmed",
+      "phase_status": "unverified",
+      "beat_map_path": null
+    },
+    {
+      "id": "the_truth_is_a_virus",
+      "title": "The Truth is a Virus",
+      "artist": "Kieran Simkin",
+      "path": "examples/the-truth-is-a-virus/master.mp3",
+      "bytes": 8666420,
+      "sha256": "b11ac7c48df227ac51d94c05a245d3138acf1a002f851c55d98fd7fb7f0de510",
+      "bpm": 109.0013,
+      "tempo_status": "estimated_grid_fit",
+      "phase_status": "model_consensus_estimated",
+      "beat_map_path": "examples/the-truth-is-a-virus/beats/consensus.json",
+      "beat_map_git_blob_sha1": "d421672f6bad88b963fda92fb2e25239f7e62206"
+    },
+    {
+      "id": "star_lights_glow_mystery_liquid_kick",
+      "title": "Star Lights Glow (Mystery Liquid Kick)",
+      "artist": "Bass Ben & Friends",
+      "path": "examples/star-lights-glow-mystery-liquid-kick/master.mp3",
+      "bytes": 6514148,
+      "sha256": "48393fbb5ef5a1afc184ea388ce760612fe0c249c5c2f7caa57e563c6bd2e098",
+      "bpm": null,
+      "preview_bpm": 120.0,
+      "tempo_status": "not_verified_preview_120",
+      "phase_status": "not_verified",
+      "canonical_master_sha256": "9de00a34643a61eada7bec26da050ad6857d6ea31306ab9104b51cd214799284",
+      "beat_map_path": null
+    }
+  ]
+}

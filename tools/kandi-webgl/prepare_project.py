@@ -58,6 +58,9 @@ def build(repo: Path, dest: Path) -> Path:
         "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.animation": "1.0.0",
         "com.unity.modules.particlesystem": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.modules.unitywebrequestaudio": "1.0.0",
     }
     (dest / "Packages" / "manifest.json").write_text(
         json.dumps({"dependencies": package_deps}, indent=2) + "\n", encoding="utf-8")

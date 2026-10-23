@@ -39,6 +39,7 @@ jobs:
       - name: Validate pinned source lock and offline pipeline tests
         run: |
           python -m json.tool tools/kandi-webgl/asset-lock.json > /dev/null
+          python -m json.tool tools/kandi-webgl/song-lock.json > /dev/null
           python -m unittest discover -s tools/kandi-webgl/tests -p 'test_*.py' -v
       - name: Require Unity Editor license for an actual Unity WebGL build
         shell: bash
@@ -51,6 +52,10 @@ jobs:
         run: python tools/kandi-webgl/prepare_project.py --repo . --output WebGLDemo
       - name: Fetch ORIGINAL DanceRudiments Kandi Boom FBX + four PBR textures
         run: python tools/kandi-webgl/fetch_assets.py --output WebGLDemo/Assets/KandiBoomSource
+      - name: Prepare verified song audio and source-bound multi-band rudiments
+        run: |
+          command -v ffmpeg
+          python tools/kandi-webgl/fetch_songs.py --output WebGLDemo/Assets/StreamingAssets/Songs
       - name: Compile actual Kandi Boom Unity WebGL player
         uses: game-ci/unity-builder@v4
         with:
@@ -61,10 +66,15 @@ jobs:
           buildName: KandiBoom
       - name: Validate WASM, data payload, Pages portal and original source receipt
         run: |
+          # WebGL may pack StreamingAssets inside the Unity data payload. Serve
+          # the exact same verified bytes as ordinary same-origin HTTP files.
+          mkdir -p build/WebGL/KandiBoom/StreamingAssets/Songs
+          cp -a WebGLDemo/Assets/StreamingAssets/Songs/. build/WebGL/KandiBoom/StreamingAssets/Songs/
           python tools/kandi-webgl/publish_pages.py \
             --build build/WebGL/KandiBoom \
             --output _pages \
-            --receipt WebGLDemo/Assets/KandiBoomSource/asset-receipt.json
+            --receipt WebGLDemo/Assets/KandiBoomSource/asset-receipt.json \
+            --require-songs
       - name: Save real WebGL build for CI inspection
         uses: actions/upload-artifact@v4
         with:
