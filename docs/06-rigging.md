@@ -1,10 +1,12 @@
 # Stage 4 — Rig profile import, retargeting and Unity Animation Playables
 
-**Status:** Source implementation and synthetic demonstrations; licensed Unity
-Editor compilation, GPU execution and two *real sourced* skinned characters remain
+**Status:** Source implementation and synthetic demonstrations. Native Editor compilation,
+GPU readback, saved-scene persistence and both synthetic skinning backends passed on
+Unity 6000.6.7f1 / URP 17.6 / RTX 4060 Ti; see the [native record](11-native-acceptance.md).
+Two *real sourced* skinned characters and their calibrated retargeting remain
 acceptance gates. This does not claim the entire Stage 4 release is accepted.
 
-**Version:** Source-only 0.5.0 development iteration, not a published tag.
+**Version:** 0.5.0-preview.2 qualification slice.
 
 ## Canonical upstream and compatibility
 
