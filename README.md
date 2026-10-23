@@ -16,6 +16,8 @@ https://github.com/kieransimkin/DanceFlow.Unity.git
 
 For reproducible builds, pin a reviewed release tag or commit rather than using an unpinned branch. Rigged demos are opt-in under Package Manager → Samples; no heavyweight audio, external character FBX, model weights or CMU recordings ship with the runtime package.
 
+The package declares its built-in Animation, Audio, JSON Serialization and Particle System module dependencies. They are required by rig playback, the DSP transport, metrics export and motion-driven particle emission even when a minimal consumer template omits them. URP remains an optional sample dependency. Test the complete root Git package in a fresh consumer project; copying selected runtime folders can hide missing package requirements.
+
 ## Features
 
 - **Phase 1:** Fixed and source-verified StemLab variable BPM, native 16-tick/64-pip timing, audio DSP/manual transport, seeks, loops, excerpt source identity, cue scheduler.
