@@ -17,6 +17,8 @@ profiles and recordings are purpose-generated procedural test assets. They are
 **not** verified Rigify source captures, actual CMU clips, Kandi Boom, or the
 song *Star Lights Glow*. Original song data is not bundled.
 
+Generated meshes, materials and the generic avatar are saved as uniquely named assets under `Assets/DanceFlowRigDemos`; the scene retains them after reopening. Generation never overwrites an existing demo asset. The generic avatar binds its root-motion transform by bone name, as required by Unity.
+
 The motion recordings last 1,024 pips (16 beats, 8 seconds at 120 BPM), are
 finite and return to the neutral pose afterward. They do not loop. Time is
 sampled from the existing `DanceFlowClockBehaviour` and remains seek-safe.

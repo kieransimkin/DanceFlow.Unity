@@ -24,10 +24,12 @@ namespace DanceFlow.Unity.Samples.Rigging.Editor
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             string human=FindSource("unity_humanoid_demo.rig-motion.json");
             string creature=FindSource("unity_quadruped_demo.rig-motion.json");
+            // NewScene can unload assets not yet referenced by a scene. Import afterward
+            // so the linked profile/recording assets remain live when bindings are saved.
+            var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var humanAsset=RigMotionImporter.ImportRigMotion(human);
             var creatureAsset=RigMotionImporter.ImportRigMotion(creature);
             if (!AssetDatabase.IsValidFolder(Output)) AssetDatabase.CreateFolder("Assets", "DanceFlowRigDemos");
-            var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             GameObject clockNode=new GameObject("DanceFlow synthetic rig clock (120 BPM)");
             var clock=clockNode.AddComponent<DanceFlowClockBehaviour>();
             var silent=clockNode.AddComponent<SilentRigDemoClock>();silent.SetClock(clock);
@@ -42,6 +44,7 @@ namespace DanceFlow.Unity.Samples.Rigging.Editor
             var light=new GameObject("Key Light").AddComponent<Light>();light.type=LightType.Directional;
             light.transform.rotation=Quaternion.Euler(35,-30,0);light.intensity=1.2f;
             string path=AssetDatabase.GenerateUniqueAssetPath(Output+"/TwoSkinnedRigDemos.unity");
+            AssetDatabase.SaveAssets();
             if (!EditorSceneManager.SaveScene(scene,path)) throw new IOException("Failed to save generated Stage 4 scene.");
             Selection.activeObject=AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
             Debug.Log("Generated two distinct real SkinnedMeshRenderer rigs, with source-verified synthetic motion and playable/direct playback: " + path);
@@ -60,6 +63,7 @@ namespace DanceFlow.Unity.Samples.Rigging.Editor
         private static void CreateCharacter(string name,Vector3 origin,string[] boneNames,
             RigMotionAsset motion,DanceFlowClockBehaviour clock,bool playables)
         {
+            motion.ValidateLink();
             var node=new GameObject(name);node.transform.position=origin;
             var skinNode=new GameObject("Skinned Robot");skinNode.transform.SetParent(node.transform,false);
             var bones=new Transform[boneNames.Length];
@@ -77,14 +81,21 @@ namespace DanceFlow.Unity.Samples.Rigging.Editor
             skin.bones=bones;skin.rootBone=bones[0];
             Mesh mesh=MakeRobotMesh(skinNode.transform,bones);
             mesh.name="Synthetic skinned robot " + name;
+            string assetStem=playables?"SyntheticQuadruped":"SyntheticHumanoid";
+            AssetDatabase.CreateAsset(mesh,AssetDatabase.GenerateUniqueAssetPath(Output+"/"+assetStem+"Mesh.asset"));
             skin.sharedMesh=mesh;
             var shader=Shader.Find("Universal Render Pipeline/Lit");
             if (shader==null) shader=Shader.Find("Standard");
-            if(shader!=null) skin.sharedMaterial=new Material(shader){color=playables?new Color(.3f,.85f,.65f):new Color(.5f,.55f,.97f)};
+            if(shader==null || !shader.isSupported)
+                throw new InvalidOperationException("A supported URP/Lit or Standard shader is required for the generated rig demo.");
+            var material=new Material(shader){color=playables?new Color(.3f,.85f,.65f):new Color(.5f,.55f,.97f)};
+            AssetDatabase.CreateAsset(material,AssetDatabase.GenerateUniqueAssetPath(Output+"/"+assetStem+".mat"));
+            skin.sharedMaterial=material;
             Animator animator=playables?node.AddComponent<Animator>():null;
             if (playables)
             {
-                var avatar=AvatarBuilder.BuildGenericAvatar(node, "Skinned Robot/hips");
+                // Unity expects the transform name, rather than its hierarchy path.
+                var avatar=AvatarBuilder.BuildGenericAvatar(node, bones[0].name);
                 if (avatar == null || !avatar.isValid)
                     throw new InvalidOperationException("Unable to construct a valid generic avatar for the synthetic quadruped.");
                 string avatarPath=AssetDatabase.GenerateUniqueAssetPath(Output + "/SyntheticQuadrupedAvatar.asset");
