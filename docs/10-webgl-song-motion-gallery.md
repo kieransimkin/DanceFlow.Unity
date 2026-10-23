@@ -59,7 +59,8 @@ prove the beat/pip correspondence.
 ## How the modulation works
 
 `fetch_songs.py` decodes the exact verified MP3 into stereo 8kHz float PCM
-using ffmpeg and calculates a lightweight, deterministic set of **measured**
+using the checksum-pinned imageio-ffmpeg 0.6.0 wheel executable (build time only)
+and calculates a lightweight, deterministic set of **measured**
 RMS envelopes (sub, bass, low-mid, mid, high, stereo width, onset change and
 overall energy), at 40 ms intervals. This avoids unsupported WebGL real-time
 PCM/FFT callbacks. The envelopes are stored with the exact source MP3 SHA.
@@ -83,9 +84,24 @@ play/pause/resume/seek and phase; neither rig nor shaders start a second timer.
 
 ## CI and acceptance
 
+The demo build uses **imageio-ffmpeg 0.6.0**, not an unpinned system decoder.
+All six released platform-specific wheel SHA-256 values are pinned in
+`tools/kandi-webgl/requirements-ffmpeg.txt`. On Linux CI the downloaded binary
+comes from the hash-checked wheel and is cached through `setup-python`'s pip
+cache. Installation cannot fall back to source distributions or Ubuntu `apt`.
+The script `ffmpeg_runtime.py` rejects a system executable, an overridden
+`IMAGEIO_FFMPEG_EXE` pointing outside the wheel or a mismatched wheel version;
+`fetch_songs.py` invokes the verified executable using its absolute path.
+The binary is **never** committed to the UPM or included in the WebGL release.
+The bootstrap step has a seven-minute timeout and fails if installation or
+validation cannot complete; the source MP3 hashes remain mandatory.
+
 ```powershell
 python -m unittest discover -s tools/kandi-webgl/tests -p 'test_*.py' -v
-# Requires network, ffmpeg, ~20MiB audio plus pinned official pattern JSON:
+# Requires Python >= 3.10 and network (first-time wheel download only).
+python -m pip install --no-deps --only-binary=:all: --require-hashes -r tools/kandi-webgl/requirements-ffmpeg.txt
+python tools/kandi-webgl/ffmpeg_runtime.py --check
+# Requires network, ~20MiB audio plus pinned official pattern JSON:
 python tools/kandi-webgl/prepare_project.py --repo . --output WebGLDemo
 python tools/kandi-webgl/fetch_songs.py --output WebGLDemo/Assets/StreamingAssets/Songs
 python tools/kandi-webgl/fetch_assets.py --output WebGLDemo/Assets/KandiBoomSource

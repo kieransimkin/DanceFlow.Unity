@@ -36,6 +36,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tools/kandi-webgl/requirements-ffmpeg.txt
       - name: Validate pinned source lock and offline pipeline tests
         run: |
           python -m json.tool tools/kandi-webgl/asset-lock.json > /dev/null
@@ -52,20 +54,19 @@ jobs:
         run: python tools/kandi-webgl/prepare_project.py --repo . --output WebGLDemo
       - name: Fetch ORIGINAL DanceRudiments Kandi Boom FBX + four PBR textures
         run: python tools/kandi-webgl/fetch_assets.py --output WebGLDemo/Assets/KandiBoomSource
-      - name: Ensure FFmpeg is available for real MP3 envelope analysis
+      - name: Install checksum-pinned FFmpeg wheel for song analysis
         shell: bash
+        timeout-minutes: 7
         run: |
-          # GitHub's hosted runner image may not include ffmpeg on PATH.
-          # Install a decoder only when absent; never skip source verification.
-          if ! command -v ffmpeg >/dev/null 2>&1; then
-            sudo apt-get update -qq
-            sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ffmpeg
-          fi
-          command -v ffmpeg
-          ffmpeg -hide_banner -version | sed -n '1p'
+          # Wheel-only, all platform hashes verified; never invoke apt-get or a
+          # system binary. setup-python caches verified pip downloads across runs.
+          python -m pip install --disable-pip-version-check --no-input \
+            --force-reinstall --no-deps --only-binary=:all: --require-hashes \
+            --retries 2 --timeout 25 -r tools/kandi-webgl/requirements-ffmpeg.txt
+          python tools/kandi-webgl/ffmpeg_runtime.py --check
       - name: Prepare verified song audio and source-bound multi-band rudiments
+        timeout-minutes: 12
         run: |
-          command -v ffmpeg
           python tools/kandi-webgl/fetch_songs.py --output WebGLDemo/Assets/StreamingAssets/Songs
       - name: Compile actual Kandi Boom Unity WebGL player
         uses: game-ci/unity-builder@v4

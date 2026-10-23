@@ -20,6 +20,8 @@ import sys
 from urllib.parse import quote
 from urllib.request import urlopen
 
+from ffmpeg_runtime import pinned_ffmpeg_exe
+
 HERE = Path(__file__).resolve().parent
 LOCK = HERE / "song-lock.json"
 SAMPLE_RATE = 8000
@@ -104,7 +106,7 @@ def checked_blob(raw: bytes, expected_sha: str, expected_bytes: int | None = Non
 
 def decode_pcm_mp3(path: Path) -> array:
     completed = subprocess.run(
-        ["ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error", "-i", str(path),
+        [pinned_ffmpeg_exe(), "-nostdin", "-hide_banner", "-loglevel", "error", "-i", str(path),
          "-vn", "-ac", "2", "-ar", str(SAMPLE_RATE), "-f", "f32le", "pipe:1"],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=180, check=True)
     if len(completed.stdout) % 8:
