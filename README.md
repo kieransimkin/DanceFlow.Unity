@@ -44,6 +44,17 @@ python -m unittest discover -s tools~/rigging-checks -p test_*.py -v
 python -m unittest discover -s tools~/showcase-checks -p test_*.py -v
 ```
 
-Automated managed checks and static tests do not demonstrate actual Unity skinning, framebuffer rendering or audio-to-photon timing. Unity Editor tests, PlayMode and licensed GPU acceptance are separate release gates. Preserve the existing SHA-pinned recording fixtures and the repository’s `.gitattributes` rules; never normalize their bytes when hashing.
+Automated managed checks and static tests do not demonstrate actual Unity skinning, framebuffer rendering or audio-to-photon timing. Unity Editor tests, PlayMode and licensed GPU acceptance are separate release gates. Preserve the existing SHA-pinned recording fixtures and hash their canonical Git-normalised LF bytes.
+
+## Cross-platform repository bytes
+
+The root `.gitattributes` stores and checks out text as LF on every platform;
+declared binary media, archives, fonts, native libraries and model formats remain
+byte-exact. Hash tests must consume those canonical checkout bytes rather than
+silently translating newlines through `core.autocrlf`.
+
+This repository-byte policy has no interface whose screenshot or video would add
+verification value. `git ls-files --eol`, fixture hash checks and CI results are
+the evidence.
 
 For native GPU acceptance, enable this package in the consumer manifest's `testables`, import **Shader Clock (URP)**, assign the URP pipeline and run `tools/benchmarks/Run-GpuReadbackTests.ps1`. Keep graphics enabled and inspect the Test Runner XML: a missing, skipped or inconclusive GPU case is incomplete acceptance. Set `DANCEFLOW_TEST_CAPTURE_DIR` to a job-local directory to retain the two actual GPU readback PNGs. These synthetic shader frames do not establish song alignment or real-character retargeting. Let `-runTests` exit the Editor; do not combine it with `-quit`. The GPU test uses a synchronous render request rather than the batch-incompatible `WaitForEndOfFrame` yield. See [Unity's command-line test guidance](https://docs.unity.com/en-us/engine/7000.0/manual/programming-environment/test-framework-introduction/reference-command-line) and [batch coroutine compatibility](https://docs.unity.cn/Manual/CLIBatchmodeCoroutines.html).
