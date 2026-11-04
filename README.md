@@ -2,7 +2,7 @@
 
 **Status:** Phases 1–3 implemented in source; **Stage 4 preview** adds validated rigged-character playback. Native Unity Editor/PlayMode, GPU readback and synthetic skinned-rig checks have passed on the qualified host below. Real-character rigging and actual song alignment remain outstanding.
 
-UPM package: `com.kieransimkin.danceflow.unity` · Unity 6+ (`6000.0`). Current repository manifest is `0.5.0-preview.2`; this remains a preview, not stable/production acceptance.
+UPM package: `com.kieransimkin.danceflow.unity` · Unity 6+ (`6000.0`). Current repository manifest is `0.5.0-preview.3`; this remains a preview, not stable/production acceptance.
 
 [Implementation plan](docs/00-implementation-plan.md) · [Timing contracts](docs/02-clock-contract.md) · [GPU shader API](docs/03-shader-api.md) · [Recording format](docs/04-recording-format.md) · [Rigging guide](docs/06-rigging.md) · [Song showcase](docs/09-song-reactive-showcase.md)
 
