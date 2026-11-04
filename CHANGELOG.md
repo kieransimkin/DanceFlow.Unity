@@ -3,6 +3,7 @@
 ## 0.5.0-preview.3
 
 - Normalizes source line endings and explains how to hash canonical recording fixtures.
+- Keeps repository-only WebGL and .NET test sources outside UPM compilation. The standalone WebGL builder still copies the original project template.
 - Keeps the runtime and samples from preview.2. See [the native acceptance record](docs/11-native-acceptance.md) for the tested Editor, PlayMode and GPU configuration.
 
 ## 0.5.0-preview.1 (source-only, not released) — Stage 4 rig playback foundation

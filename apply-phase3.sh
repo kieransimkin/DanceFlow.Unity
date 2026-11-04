@@ -31,7 +31,7 @@ if [[ "$checks" == '--checks' ]]; then
   python 'tools/shader-checks/check_shader_contract.py'
   python -m unittest discover -s 'tools/benchmarks/tests' -v
   if command -v dotnet >/dev/null; then
-    dotnet run --project tools/clock-checks/ClockChecks.csproj --configuration Release
+    dotnet run --project tools~/clock-checks/ClockChecks.csproj --configuration Release
     dotnet run --project 'tools~/recording-checks/RecordingChecks.csproj' --configuration Release
   else
     echo '.NET CLI missing: C# compilation and parity remain outstanding.' >&2

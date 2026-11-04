@@ -67,7 +67,7 @@ if ($RunChecks) {
             if ($LASTEXITCODE -ne 0) { throw 'Benchmark analysis checks failed.' }
         } else { Write-Warning 'Python is unavailable: static/fixture checks still need to run.' }
         if (Get-Command dotnet -ErrorAction SilentlyContinue) {
-            & dotnet run --project 'tools/clock-checks/ClockChecks.csproj' --configuration Release
+            & dotnet run --project 'tools~/clock-checks/ClockChecks.csproj' --configuration Release
             if ($LASTEXITCODE -ne 0) { throw 'Phase 1/2 .NET checks failed.' }
             & dotnet run --project 'tools~/recording-checks/RecordingChecks.csproj' --configuration Release
             if ($LASTEXITCODE -ne 0) { throw 'Phase 3 .NET checks failed.' }

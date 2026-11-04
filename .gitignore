@@ -14,7 +14,7 @@ Cache/
 *.unitypackage
 
 # Standalone cross-platform clock compilation harness
-!tools/clock-checks/ClockChecks.csproj
+!tools~/clock-checks/ClockChecks.csproj
 !tools~/recording-checks/RecordingChecks.csproj
 !tools~/rigging-checks/RiggingChecks.csproj
 **/bin/

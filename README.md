@@ -16,6 +16,8 @@ In Package Manager choose **Add package from git URL**, enter:
 https://github.com/kieransimkin/DanceFlow.Unity.git
 ```
 
+The standalone WebGL project template and .NET clock test harness live in Unity-ignored folders. The WebGL builder copies the template into its own project when needed.
+
 For reproducible builds, pin a reviewed release tag or commit rather than using an unpinned branch. Rigged demos are opt-in under Package Manager → Samples; no heavyweight audio, external character FBX, model weights or CMU recordings ship with the runtime package.
 
 The package declares its built-in Animation, Audio, IMGUI, JSON Serialization and Particle System module dependencies. They are required by rig playback, the DSP transport, diagnostic UI/metrics export and motion-driven particle emission even when a minimal consumer template omits them. URP remains an optional sample dependency. Test the complete root Git package in a fresh consumer project; copying selected runtime folders can hide missing package requirements.
@@ -36,7 +38,7 @@ To import a compatible real rig motion, choose **Assets → DanceFlow → Import
 ## Checks
 
 ```powershell
-dotnet run --project tools/clock-checks/ClockChecks.csproj -c Release
+dotnet run --project tools~/clock-checks/ClockChecks.csproj -c Release
 dotnet run --project tools~/recording-checks/RecordingChecks.csproj -c Release
 dotnet run --project tools~/rigging-checks/RiggingChecks.csproj -c Release
 python tools~/rigging-checks/generate_fixtures.py --verify

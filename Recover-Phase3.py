@@ -29,8 +29,8 @@ PINNED_SHA256 = {
 CUMULATIVE_SAFE_MODIFICATIONS = {
     ".gitignore",
     "Runtime/Clock/DanceFlowClockBehaviour.cs",
-    "tools/clock-checks/ClockChecks.csproj",
-    "tools/clock-checks/Program.cs",
+    "tools~/clock-checks/ClockChecks.csproj",
+    "tools~/clock-checks/Program.cs",
 }
 
 # Stage 3B paths which must be updated from the compatibility *delta*, not the

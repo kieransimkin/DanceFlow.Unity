@@ -53,7 +53,7 @@ This plan is grounded in the current source: `Runtime/Clock/BeatState.cs`, `Beat
 | Phase 1 tests | Synthetic fixed/irregular beat anchors, negative phase, source identity validation and boundary scheduling | Use unchanged fixtures; add shader-encoding golden outputs and renderback fixtures |
 | Phase 1 audio | Scheduled straight playback only; excerpt looping and rate changes of actual audio not fully implemented | GPU reflects *musical transport* accurately; demos cannot claim rescheduled audio is proven for every transport mode |
 
-**Preflight gate P2-G0:** Pull the latest `main`, compare with the base commit above, and rerun `dotnet run --project tools/clock-checks/ClockChecks.csproj -c Release`. Check actual GitHub Actions and Unity Test Runner results. Pin the source SHA and Unity versions used for new fixture generation. If Phase 1 tests or UPM import fail, fix those **before** measuring performance; do not substitute assumptions.
+**Preflight gate P2-G0:** Pull the latest `main`, compare with the base commit above, and rerun `dotnet run --project tools~/clock-checks/ClockChecks.csproj -c Release`. Check actual GitHub Actions and Unity Test Runner results. Pin the source SHA and Unity versions used for new fixture generation. If Phase 1 tests or UPM import fail, fix those **before** measuring performance; do not substitute assumptions.
 
 ### Concrete hazard: update time versus render time
 
