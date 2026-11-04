@@ -26,7 +26,7 @@ def build(repo: Path, dest: Path) -> Path:
     pkg = json.loads((repo / "package.json").read_text(encoding="utf-8"))
     if pkg.get("name") != PACKAGE_NAME:
         raise ValueError("Wrong UPM source repository")
-    template = HERE / "UnityProject"
+    template = HERE / "UnityProject~"
     if not (template / "Assets" / "Editor" / "KandiBoomWebGLBuild.cs").is_file():
         raise FileNotFoundError("Unity Editor build template missing")
     def prohibit_symlinks(p: Path):

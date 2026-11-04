@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 
 TOOLS = Path(__file__).resolve().parents[1]
-ROOT = TOOLS / "UnityProject" / "Assets"
+ROOT = TOOLS / "UnityProject~" / "Assets"
 
 class WebGLUnityContractTests(unittest.TestCase):
     def test_uses_original_fbx_and_source_verified_weights(self):

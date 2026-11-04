@@ -2,7 +2,7 @@
 
 **Status:** Phases 1–3 implemented in source; **Stage 4 preview** adds validated rigged-character playback. Native Unity Editor/PlayMode, GPU readback and synthetic skinned-rig checks have passed on the qualified host below. Real-character rigging and actual song alignment remain outstanding.
 
-UPM package: `com.kieransimkin.danceflow.unity` · Unity 6+ (`6000.0`). Current repository manifest is `0.5.0-preview.2`; this remains a preview, not stable/production acceptance.
+UPM package: `com.kieransimkin.danceflow.unity` · Unity 6+ (`6000.0`). Current repository manifest is `0.5.0-preview.3`; this remains a preview, not stable/production acceptance.
 
 [Implementation plan](docs/00-implementation-plan.md) · [Timing contracts](docs/02-clock-contract.md) · [GPU shader API](docs/03-shader-api.md) · [Recording format](docs/04-recording-format.md) · [Rigging guide](docs/06-rigging.md) · [Song showcase](docs/09-song-reactive-showcase.md)
 
@@ -15,6 +15,8 @@ In Package Manager choose **Add package from git URL**, enter:
 ```
 https://github.com/kieransimkin/DanceFlow.Unity.git
 ```
+
+The standalone WebGL project template and .NET clock test harness live in Unity-ignored folders. The WebGL builder copies the template into its own project when needed.
 
 For reproducible builds, pin a reviewed release tag or commit rather than using an unpinned branch. Rigged demos are opt-in under Package Manager → Samples; no heavyweight audio, external character FBX, model weights or CMU recordings ship with the runtime package.
 
@@ -36,7 +38,7 @@ To import a compatible real rig motion, choose **Assets → DanceFlow → Import
 ## Checks
 
 ```powershell
-dotnet run --project tools/clock-checks/ClockChecks.csproj -c Release
+dotnet run --project tools~/clock-checks/ClockChecks.csproj -c Release
 dotnet run --project tools~/recording-checks/RecordingChecks.csproj -c Release
 dotnet run --project tools~/rigging-checks/RiggingChecks.csproj -c Release
 python tools~/rigging-checks/generate_fixtures.py --verify

@@ -31,7 +31,7 @@ jobs:
         run: |
           mkdir -p test-package
           rsync -a --exclude='.git' --exclude='test-package' --exclude='Library' ./ test-package/
-      - uses: game-ci/unity-test-runner@v4
+      - uses: game-ci/unity-test-runner@fa6ced25861c16ef56187828c43f76d00df43a23 # v4.3.2
         id: tests
         with:
           projectPath: test-package

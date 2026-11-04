@@ -137,7 +137,7 @@ native sampling tool, with a declared length and origin confidence.
 - `python -m unittest discover -s tools~/showcase-checks -p 'test_*.py' -v`
   checks song manifest status, shader/CPU parameter names, generated geometry,
   bounded buffers and Unity `.meta` GUID uniqueness.
-- `dotnet run --project tools/clock-checks/ClockChecks.csproj -c Release`
+- `dotnet run --project tools~/clock-checks/ClockChecks.csproj -c Release`
   tests additional managed preview/math parity along with the existing clock.
 - Unity 6 Editor/Play Mode and GPU shader validation remain required. The sample
   can only render with URP installed and assigned; no actual rendered Unity

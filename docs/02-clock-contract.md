@@ -77,7 +77,7 @@ If Unity's audio device or sample rate changes, the component pauses transport; 
 ## Test commands
 
 ```sh
-dotnet run --project tools/clock-checks/ClockChecks.csproj --configuration Release
+dotnet run --project tools~/clock-checks/ClockChecks.csproj --configuration Release
 ```
 
 In Unity, add package tests to `testables` if installed through Git rather than embedded, then run the EditMode/PlayMode Test Runner suites. See [Unity's package testing guide](https://docs.unity.com/en-us/engine/6000.0/manual/packages-list/cus-pkg-development/cus-tests).

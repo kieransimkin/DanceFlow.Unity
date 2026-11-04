@@ -87,7 +87,7 @@ Make reusable Shader Graph **Sub Graph** assets from these nodes in your own pro
 
 ## Deterministic parity and testing
 
-The .NET harness `tools/clock-checks/ClockChecks.csproj` compiles the pure `ShaderClockMath.cs` alongside the Phase 1 clock and checks fixed/variable timing, negative indices, source/continuous loops, signed split counters and long-session 1–256-beat cycles. `python tools/shader-checks/check_shader_contract.py` validates fixtures, HLSL names, shader references, package metadata and Unity GUID uniqueness with no external dependencies.
+The .NET harness `tools~/clock-checks/ClockChecks.csproj` compiles the pure `ShaderClockMath.cs` alongside the Phase 1 clock and checks fixed/variable timing, negative indices, source/continuous loops, signed split counters and long-session 1–256-beat cycles. `python tools/shader-checks/check_shader_contract.py` validates fixtures, HLSL names, shader references, package metadata and Unity GUID uniqueness with no external dependencies.
 
 Run the manually dispatched **Unity package smoke tests (licensed)** workflow after configuring GitHub Unity licence secrets and an available Unity 6 editor image. GameCI relocates the root UPM package into a temporary subdirectory, as required by its package-mode runner. In Unity run EditMode and PlayMode Test Runner suites (tests are already split into assemblies). GPU screenshot/render readback and Shader Graph compilation should be tested in a **licensed Unity 6 Editor with URP actually installed**. Static tests and a .NET calculation do not prove ShaderLab compilation or audio/display precision on a real GPU.
 

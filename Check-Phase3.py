@@ -130,7 +130,7 @@ def main() -> int:
             execute('.NET recording checks', [dotnet, 'run', '--project',
                     'tools~/recording-checks/RecordingChecks.csproj', '-c', 'Release'], repo, output),
             execute('.NET clock checks', [dotnet, 'run', '--project',
-                    'tools/clock-checks/ClockChecks.csproj', '-c', 'Release'], repo, output),
+                    'tools~/clock-checks/ClockChecks.csproj', '-c', 'Release'], repo, output),
         ])
     report = {'schema': 'danceflow.unity.phase3-diagnostics.v1',
               'repository': str(repo), 'generated_utc': dt.datetime.now(dt.timezone.utc).isoformat(),

@@ -217,10 +217,10 @@ class SongSourceTests(unittest.TestCase):
         self.assertIn('--require-songs', workflow)
 
     def test_scene_uses_one_clock_and_property_matrix(self):
-        src = (HERE/'UnityProject'/'Assets'/'Editor'/'KandiBoomWebGLBuild.cs').read_text()
-        song = (HERE/'UnityProject'/'Assets'/'Scripts'/'KandiBoomSongPlayer.cs').read_text()
-        matrix = (HERE/'UnityProject'/'Assets'/'Scripts'/'KandiBoomMotionMatrix.cs').read_text()
-        control = (HERE/'UnityProject'/'Assets'/'Scripts'/'KandiBoomControls.cs').read_text()
+        src = (HERE/'UnityProject~'/'Assets'/'Editor'/'KandiBoomWebGLBuild.cs').read_text()
+        song = (HERE/'UnityProject~'/'Assets'/'Scripts'/'KandiBoomSongPlayer.cs').read_text()
+        matrix = (HERE/'UnityProject~'/'Assets'/'Scripts'/'KandiBoomMotionMatrix.cs').read_text()
+        control = (HERE/'UnityProject~'/'Assets'/'Scripts'/'KandiBoomControls.cs').read_text()
         workflow = (HERE.parents[1]/'.github'/'workflows'/'unity-webgl-pages.yml').read_text()
         self.assertIn('systems.AddComponent<KandiBoomSongPlayer>()',src)
         self.assertIn('systems.AddComponent<KandiBoomMotionMatrix>()',src)
